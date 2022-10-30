@@ -34,14 +34,12 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene);
 /**
  * Function implementation
  */
-void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
-{
+void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
 	ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
 	// TODO: Handle mouse scroll here
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 	int windowWidth = 1280, windowHeight = 720;
 	GLFWwindow* window = SetupGlfwWindow(windowWidth, windowHeight, "Mesh Viewer");
 	if (!window)
@@ -56,8 +54,7 @@ int main(int argc, char **argv)
 	
 	ImGuiIO& io = SetupDearImgui(window);
 	glfwSetScrollCallback(window, ScrollCallback);
-    while (!glfwWindowShouldClose(window))
-    {
+    while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
 		StartFrame();
 		DrawImguiMenus(io, scene);
@@ -68,13 +65,11 @@ int main(int argc, char **argv)
     return 0;
 }
 
-static void GlfwErrorCallback(int error, const char* description)
-{
+static void GlfwErrorCallback(int error, const char* description) {
 	fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
-GLFWwindow* SetupGlfwWindow(int w, int h, const char* window_name)
-{
+GLFWwindow* SetupGlfwWindow(int w, int h, const char* window_name) {
 	glfwSetErrorCallback(GlfwErrorCallback);
 	if (!glfwInit())
 		return NULL;
@@ -96,8 +91,7 @@ GLFWwindow* SetupGlfwWindow(int w, int h, const char* window_name)
 	return window;
 }
 
-ImGuiIO& SetupDearImgui(GLFWwindow* window)
-{
+ImGuiIO& SetupDearImgui(GLFWwindow* window) {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
@@ -107,40 +101,33 @@ ImGuiIO& SetupDearImgui(GLFWwindow* window)
 	return io;
 }
 
-void StartFrame()
-{
+void StartFrame() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 }
 
-void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& io)
-{
+void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& io) {
 	ImGui::Render();
 	int frameBufferWidth, frameBufferHeight;
 	glfwMakeContextCurrent(window);
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
 	
-	if (frameBufferWidth != renderer.GetViewportWidth() || frameBufferHeight != renderer.GetViewportHeight())
-	{
+	if (frameBufferWidth != renderer.GetViewportWidth() || frameBufferHeight != renderer.GetViewportHeight()) {
 		// TODO: Set new aspect ratio
 	}
 
-	if (!io.WantCaptureKeyboard)
-	{
+	if (!io.WantCaptureKeyboard) {
 		// TODO: Handle keyboard events here
-		if (io.KeysDown[65])
-		{
+		if (io.KeysDown[65]) {
 			// A key is down
 			// Use the ASCII table for more key codes (https://www.asciitable.com/)
 		}
 	}
 
-	if (!io.WantCaptureMouse)
-	{
+	if (!io.WantCaptureMouse) {
 		// TODO: Handle mouse events here
-		if (io.MouseDown[0])
-		{
+		if (io.MouseDown[0]) {
 			// Left mouse button is down
 		}
 	}
@@ -154,8 +141,7 @@ void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& 
 	glfwSwapBuffers(window);
 }
 
-void Cleanup(GLFWwindow* window)
-{
+void Cleanup(GLFWwindow* window) {
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
@@ -164,34 +150,28 @@ void Cleanup(GLFWwindow* window)
 	glfwTerminate();
 }
 
-void DrawImguiMenus(ImGuiIO& io, Scene& scene)
-{
+void DrawImguiMenus(ImGuiIO& io, Scene& scene) {
 	/**
 	 * MeshViewer menu
 	 */
 	ImGui::Begin("MeshViewer Menu");
 	
 	// Menu Bar
-	if (ImGui::BeginMainMenuBar())
-	{
-		if (ImGui::BeginMenu("File"))
-		{
-			if (ImGui::MenuItem("Open", "CTRL+O"))
-			{
+	if (ImGui::BeginMainMenuBar()) {
+		if (ImGui::BeginMenu("File")) {
+			if (ImGui::MenuItem("Open", "CTRL+O")) {
 				nfdchar_t* outPath = NULL;
 				nfdresult_t result = NFD_OpenDialog("obj;", NULL, &outPath);
-				if (result == NFD_OKAY)
-				{
+				if (result == NFD_OKAY) {
 					scene.AddModel(Utils::LoadMeshModel(outPath));
 					free(outPath);
 				}
-				else if (result == NFD_CANCEL)
-				{
-				}
-				else
-				{
-				}
+				else if (result == NFD_CANCEL) {
 
+				}
+				else {
+
+				}
 			}
 			ImGui::EndMenu();
 		}
@@ -238,8 +218,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	}
 
 	// 3. Show another simple window.
-	if (show_another_window)
-	{
+	if (show_another_window) {
 		ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
 		ImGui::Text("Hello from another window!");
 		if (ImGui::Button("Close Me"))

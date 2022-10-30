@@ -9,20 +9,16 @@
 #define Z_INDEX(width,x,y) ((x)+(y)*(width))
 
 Renderer::Renderer(int viewport_width, int viewport_height) :
-	viewport_width(viewport_width),
-	viewport_height(viewport_height)
-{
+	viewport_width(viewport_width), viewport_height(viewport_height) {
 	InitOpenglRendering();
 	CreateBuffers(viewport_width, viewport_height);
 }
 
-Renderer::~Renderer()
-{
+Renderer::~Renderer() {
 	delete[] color_buffer;
 }
 
-void Renderer::PutPixel(int i, int j, const glm::vec3& color)
-{
+void Renderer::PutPixel(int i, int j, const glm::vec3& color) {
 	if (i < 0) return; if (i >= viewport_width) return;
 	if (j < 0) return; if (j >= viewport_height) return;
 	
@@ -31,14 +27,12 @@ void Renderer::PutPixel(int i, int j, const glm::vec3& color)
 	color_buffer[INDEX(viewport_width, i, j, 2)] = color.z;
 }
 
-void Renderer::DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color)
-{
+void Renderer::DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color) {
 	// TODO: Implement bresenham algorithm
 	// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 }
 
-void Renderer::CreateBuffers(int w, int h)
-{
+void Renderer::CreateBuffers(int w, int h) {
 	CreateOpenglBuffer(); //Do not remove this line.
 	color_buffer = new float[3 * w * h];
 	ClearColorBuffer(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -51,8 +45,7 @@ void Renderer::CreateBuffers(int w, int h)
 // Basic tutorial on how opengl works:
 // http://www.opengl-tutorial.org/beginners-tutorials/tutorial-2-the-first-triangle/
 // don't linger here for now, we will have a few tutorials about opengl later.
-void Renderer::InitOpenglRendering()
-{
+void Renderer::InitOpenglRendering() {
 	// Creates a unique identifier for an opengl texture.
 	glGenTextures(1, &gl_screen_tex);
 
@@ -123,8 +116,7 @@ void Renderer::InitOpenglRendering()
 	glUniform1i(glGetUniformLocation(program, "texture"),0);
 }
 
-void Renderer::CreateOpenglBuffer()
-{
+void Renderer::CreateOpenglBuffer() {
 	// Makes GL_TEXTURE0 the current active texture unit
 	glActiveTexture(GL_TEXTURE0);
 
@@ -136,8 +128,7 @@ void Renderer::CreateOpenglBuffer()
 	glViewport(0, 0, viewport_width, viewport_height);
 }
 
-void Renderer::SwapBuffers()
-{
+void Renderer::SwapBuffers() {
 	// Makes GL_TEXTURE0 the current active texture unit
 	glActiveTexture(GL_TEXTURE0);
 
@@ -157,19 +148,15 @@ void Renderer::SwapBuffers()
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void Renderer::ClearColorBuffer(const glm::vec3& color)
-{
-	for (int i = 0; i < viewport_width; i++)
-	{
-		for (int j = 0; j < viewport_height; j++)
-		{
+void Renderer::ClearColorBuffer(const glm::vec3& color) {
+	for (int i = 0; i < viewport_width; i++) {
+		for (int j = 0; j < viewport_height; j++) {
 			PutPixel(i, j, color);
 		}
 	}
 }
 
-void Renderer::Render(const Scene& scene)
-{
+void Renderer::Render(const Scene& scene) {
 	// TODO: Replace this code with real scene rendering code
 	int half_width = viewport_width / 2;
 	int half_height = viewport_height / 2;
@@ -177,12 +164,10 @@ void Renderer::Render(const Scene& scene)
 
 }
 
-int Renderer::GetViewportWidth() const
-{
+int Renderer::GetViewportWidth() const {
 	return viewport_width;
 }
 
-int Renderer::GetViewportHeight() const
-{
+int Renderer::GetViewportHeight() const {
 	return viewport_height;
 }
