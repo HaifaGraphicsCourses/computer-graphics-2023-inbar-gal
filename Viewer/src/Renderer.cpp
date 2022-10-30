@@ -64,7 +64,44 @@ void Renderer::drawY(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3
 		start++;
 	}
 }
+void Renderer::chooseP(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color, int DQ, int DP, int index) {
+	int a = p1.x, b = p2.x, c = p1.y, d = p2.y;
+	int error = (2 * DQ) - DP;
 
+	for (int i = 0; i < DP; i++) {
+		// x coordinate would always change
+		if (a < b) {
+			a++;
+		}
+		else {
+			a--;
+		}
+
+		// we change the error every iteration
+		if (error < 0) {
+			error += (2 * DQ);
+}
+		else {
+			error += (2 * DQ) - (2 * DP);
+			// y coordinate would change only if the error is positive
+			if (c < d) {
+				c++;
+			}
+			else {
+				c--;
+			}
+		}
+		// send x, y like that
+		if (index == 1) {
+			PutPixel(a, c, color);
+		}
+		// change the roles - first y, than x
+		else 
+		{
+			PutPixel(c, a, color);
+		}
+	}
+}
 void Renderer::CreateBuffers(int w, int h) {
 	CreateOpenglBuffer(); //Do not remove this line.
 	color_buffer = new float[3 * w * h];
