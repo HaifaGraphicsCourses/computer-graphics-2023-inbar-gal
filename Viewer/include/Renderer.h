@@ -14,6 +14,9 @@ class Renderer {
 		int GetViewportHeight() const;
 	
 	private:
+		void drawX(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color);
+		void drawY(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color);
+		void chooseP(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color, int DQ, int DP, int index);
 		void PutPixel(const int i, const int j, const glm::vec3& color);
 		void DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color);
 
