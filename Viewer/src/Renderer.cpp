@@ -31,6 +31,39 @@ void Renderer::DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::v
 	// TODO: Implement bresenham algorithm
 	// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 }
+void Renderer::drawX(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color) {
+	int start, finish, xValue = p1.x;
+	// choose starting point as the lowest of the two
+	if (p1.y > p2.y) {
+		start = p2.y;
+		finish = p1.y;
+	}
+	else {
+		start = p1.y;
+		finish = p2.y;
+	}
+	while (start <= finish) {
+		PutPixel(xValue, start, color);
+		start++;
+	}
+}
+
+void Renderer::drawY(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color) {
+	int start, finish, yValue = p1.y;
+	// choose starting point as the lowest of the two
+	if (p1.x > p2.x) {
+		start = p2.x;
+		finish = p1.x;
+	}
+	else {
+		start = p1.x;
+		finish = p2.x;
+	}
+	while (start <= finish) {
+		PutPixel(start, yValue, color);
+		start++;
+	}
+}
 
 void Renderer::CreateBuffers(int w, int h) {
 	CreateOpenglBuffer(); //Do not remove this line.
