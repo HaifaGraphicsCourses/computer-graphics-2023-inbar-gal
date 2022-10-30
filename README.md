@@ -1,14 +1,14 @@
 # Computer Graphics 203.3710
 ## Students Team data
 
-Name: 
+Name: Inbar Lev Tov
 
-Student Number: 
+Student Number: 316327246
 
 
-Name: 
+Name: Gal Gibly
 
-Student Number: 
+Student Number: 315093435 
 
 ### Lecturer
 *Roi Poranne*
