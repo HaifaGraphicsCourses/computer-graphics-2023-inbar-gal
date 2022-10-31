@@ -28,7 +28,7 @@ void Renderer::PutPixel(int i, int j, const glm::vec3& color) {
 }
 
 void Renderer::DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color) {
-	// TODO: Implement bresenham algorithm
+	// Implement bresenham algorithm
 
 	// if it's the same point, you draw the point and that's it
 	if (p1 == p2) {
@@ -57,10 +57,10 @@ void Renderer::DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::v
 	* a > 1 -> in that case, x and y switch roles */
 	float slopeA = ((float)abs(deltaQ)) / ((float)abs(deltaP));
 	if (slopeA < 1) {
-		chooseP(p1, p2, color, deltaQ, deltaP, 1);
+		slopeFloat(p1, p2, color, deltaQ, deltaP);
 	}
 	else {
-		chooseP(p2, p1, color, deltaP, deltaQ, 2);
+		slopeInt(p1, p2, color, deltaQ, deltaP);
 	}
 }
 
@@ -98,41 +98,90 @@ void Renderer::drawY(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3
 	}
 }
 
-void Renderer::chooseP(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color, int DQ, int DP, int index) {
-	int a = p1.x, b = p2.x, c = p1.y, d = p2.y;
-	int error = (2 * DQ) - DP;
+void Renderer::slopeFloat(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color, int DQ, int DP) {
+	int mX0, mX1, mY0, mY1, mDx, mDy;
+	int index, D, start;
 
-	for (int i = 0; i < DP; i++) {
-		// x coordinate would always change
-		if (a < b) {
-			a++;
+	if (p1.x > p2.x) {
+		mX0 = p2.x;
+		mX1 = p1.x;
+		mY0 = p2.y;
+		mY1 = p1.y;
+		mDx = -DP;
+		mDy = -DQ;
+		start = p2.y;
+	}
+	else {
+		mX0 = p1.x;
+		mX1 = p2.x;
+		mY0 = p1.y;
+		mY1 = p2.y;
+		mDx = DP;
+		mDy = DQ;
+		start = p1.y;
+	}
+
+	if (mDy < 0) {
+		index = -1;
+		mDy *= (-1);
+	}
+	else {
+		index = 1;
+	}
+	D = (2 * mDy) - mDx;
+
+	for (int i = mX0; i < mX1; i++) {
+		PutPixel(i, start, color);
+		if (D > 0) {
+			start += index;
+			D += (2 * mDy) - (2 * mDx);
 		}
 		else {
-			a--;
+			D += (2 * mDy);
 		}
+	}
+}
 
-		// we change the error every iteration
-		if (error < 0) {
-			error += (2 * DQ);
+void Renderer::slopeInt(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color, int DQ, int DP) {
+	int mX0, mX1, mY0, mY1, mDx, mDy;
+	int index, D, start;
+
+	if (p1.y > p2.y) {
+		mX0 = p2.x;
+		mX1 = p1.x;
+		mY0 = p2.y;
+		mY1 = p1.y;
+		mDx = -DP;
+		mDy = -DQ;
+		start = p2.x;
+	}
+	else {
+		mX0 = p1.x;
+		mX1 = p2.x;
+		mY0 = p1.y;
+		mY1 = p2.y;
+		mDx = DP;
+		mDy = DQ;
+		start = p1.x;
+	}
+
+	if (mDx < 0) {
+		index = -1;
+		mDx *= (-1);
+	}
+	else {
+		index = 1;
+	}
+	D = (2 * mDx) - mDy;
+
+	for (int i = mY0; i < mY1; i++) {
+		PutPixel(start, i, color);
+		if (D > 0) {
+			start += index;
+			D += (2 * mDx) - (2 * mDy);
 		}
 		else {
-			error += (2 * DQ) - (2 * DP);
-			// y coordinate would change only if the error is positive
-			if (c < d) {
-				c++;
-			}
-			else {
-				c--;
-			}
-		}
-
-		// send x, y like that
-		if (index == 1) {
-			PutPixel(a, c, color);
-		}
-		// change the roles - first y, than x
-		else {
-			PutPixel(c, a, color);
+			D += (2 * mDx);
 		}
 	}
 }
@@ -264,7 +313,7 @@ void Renderer::ClearColorBuffer(const glm::vec3& color) {
 void Renderer::Render(const Scene& scene) {
 	int half_width = viewport_width / 2;
 	int half_height = viewport_height / 2;
-	
+
 	// draw line
 	// DrawLine(glm::ivec2(100, 500), glm::ivec2(500, 100), glm::vec3(0, 0, 0));
 
