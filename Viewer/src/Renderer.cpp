@@ -29,8 +29,41 @@ void Renderer::PutPixel(int i, int j, const glm::vec3& color) {
 
 void Renderer::DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color) {
 	// TODO: Implement bresenham algorithm
-	// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+
+	// if it's the same point, you draw the point and that's it
+	if (p1 == p2) {
+		PutPixel(p1.x, p1.y, color);
+		return;
+	}
+
+	// calculating x difference
+	int deltaP = p2.x - p1.x;
+	// if deltaP is 0, it's a straight line up or down 
+	if (deltaP == 0) {
+		drawX(p1, p2, color);
+		return;
+	}
+
+	// calculating y difference
+	int deltaQ = p2.y - p1.y;
+	// if deltaQ is 0, it's a straight line left or right 
+	if (deltaQ == 0) {
+		drawY(p1, p2, color);
+		return;
+	}
+
+	/* since deltaQ / deltaP are absolute values, slopeA can be
+	* 0 < a < 1
+	* a > 1 -> in that case, x and y switch roles */
+	float slopeA = ((float)abs(deltaQ)) / ((float)abs(deltaP));
+	if (slopeA < 1) {
+		chooseP(p1, p2, color, deltaQ, deltaP, 1);
+	}
+	else {
+		chooseP(p2, p1, color, deltaP, deltaQ, 2);
+	}
 }
+
 void Renderer::drawX(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color) {
 	int start, finish, xValue = p1.x;
 	// choose starting point as the lowest of the two
@@ -64,6 +97,7 @@ void Renderer::drawY(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3
 		start++;
 	}
 }
+
 void Renderer::chooseP(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color, int DQ, int DP, int index) {
 	int a = p1.x, b = p2.x, c = p1.y, d = p2.y;
 	int error = (2 * DQ) - DP;
@@ -80,7 +114,7 @@ void Renderer::chooseP(const glm::ivec2& p1, const glm::ivec2& p2, const glm::ve
 		// we change the error every iteration
 		if (error < 0) {
 			error += (2 * DQ);
-}
+		}
 		else {
 			error += (2 * DQ) - (2 * DP);
 			// y coordinate would change only if the error is positive
@@ -91,17 +125,18 @@ void Renderer::chooseP(const glm::ivec2& p1, const glm::ivec2& p2, const glm::ve
 				c--;
 			}
 		}
+
 		// send x, y like that
 		if (index == 1) {
 			PutPixel(a, c, color);
 		}
 		// change the roles - first y, than x
-		else 
-		{
+		else {
 			PutPixel(c, a, color);
 		}
 	}
 }
+
 void Renderer::CreateBuffers(int w, int h) {
 	CreateOpenglBuffer(); //Do not remove this line.
 	color_buffer = new float[3 * w * h];
@@ -227,11 +262,23 @@ void Renderer::ClearColorBuffer(const glm::vec3& color) {
 }
 
 void Renderer::Render(const Scene& scene) {
-	// TODO: Replace this code with real scene rendering code
 	int half_width = viewport_width / 2;
 	int half_height = viewport_height / 2;
-	// draw circle
+	
+	// draw line
+	// DrawLine(glm::ivec2(100, 500), glm::ivec2(500, 100), glm::vec3(0, 0, 0));
 
+	// draw circle
+	int rad = 200;
+	double pi = acos(-1), temp;
+	int cost, sint;
+
+	for (int i = 0; i < 360; i++) {
+		temp = i * (pi / 180.0);
+		cost = round(rad * cos(temp));
+		sint = round(rad * sin(temp));
+		DrawLine(glm::ivec2(half_width, half_height), glm::ivec2(half_width + cost, half_height + sint), glm::vec3(0, 0, 0));
+	}
 }
 
 int Renderer::GetViewportWidth() const {
