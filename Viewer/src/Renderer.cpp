@@ -345,9 +345,8 @@ void Renderer::Render(const Scene& scene) {
 		DrawLine(glm::ivec2(i + 700, j), glm::ivec2(i + 700, j + 300), glm::vec3(1, 0.5, 0));
 	}
 
-	int rad = 75;
-	double pi = acos(-1), temp;
-	int cost, sint;
+	rad = 75;
+	pi = acos(-1);
 	int a = 510, b = 275, c = 425, d = 690, e = 600, f = 350;
 
 	for (int i = 0; i < 360; i++) {
