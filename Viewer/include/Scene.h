@@ -27,7 +27,8 @@ class Scene {
 
 		void SetActiveModelIndex(int index);
 		int GetActiveModelIndex() const;
-	
+
+		int ModelVectorEmpty() const;
 	private:
 		vector<shared_ptr<MeshModel>> mesh_models;
 		vector<shared_ptr<Camera>> cameras;

@@ -53,3 +53,12 @@ void Scene::SetActiveModelIndex(int index) {
 int Scene::GetActiveModelIndex() const {
 	return active_model_index;
 }
+
+int Scene::ModelVectorEmpty() const {
+	if (mesh_models.empty()) {
+		return 0;
+	}
+	else {
+		return 1;
+	}
+}
