@@ -311,66 +311,21 @@ void Renderer::ClearColorBuffer(const glm::vec3& color) {
 }
 
 void Renderer::Render(const Scene& scene) {
-	int half_width = viewport_width / 2;
-	int half_height = viewport_height / 2;
+	if (scene.ModelVectorEmpty() == 1) {
+		MeshModel current = scene.GetActiveModel();
 
-	// draw line
-	DrawLine(glm::ivec2(100, 500), glm::ivec2(500, 100), glm::vec3(0, 0, 0));
+		for (int i = 0; i < current.GetFacesCount(); i++) {
+			// get face, than it's vertices, than draw line between the vertices
+			Face currentF = current.GetFace(i);
+			int one = currentF.GetVertexIndex(0) - 1, two = currentF.GetVertexIndex(1) - 1, three = currentF.GetVertexIndex(2) - 1;
+			glm::vec3 v1 = current.GetVertex(one), v2 = current.GetVertex(two), v3 = current.GetVertex(three);
+			glm::ivec2 trueV1(v1.x, v1.y), trueV2(v2.x, v2.y), trueV3(v3.x, v3.y);
 
-	// draw circle
-	int rad = 200;
-	double pi = acos(-1), temp;
-	int cost, sint;
-
-	for (int i = 0; i < 360; i++) {
-		temp = i * (pi / 180.0);
-		cost = round(rad * cos(temp));
-		sint = round(rad * sin(temp));
-		DrawLine(glm::ivec2(half_width, half_height), glm::ivec2(half_width + cost, half_height + sint), glm::vec3(0, 0, 0));
+			DrawLine(trueV1, trueV2, glm::vec3(1, 1, 1));
+			DrawLine(trueV2, trueV3, glm::vec3(1, 1, 1));
+			DrawLine(trueV3, trueV1, glm::vec3(1, 1, 1));
+		}
 	}
-
-	// draw shape
-	for (int i = 200, j = 100; j < 200; j += 2) {
-		DrawLine(glm::ivec2(i, j), glm::ivec2(i + 100, j), glm::vec3(1, 0, 0));
-		DrawLine(glm::ivec2(i, j + 400), glm::ivec2(i + 100, j + 400), glm::vec3(0, 1, 0));
-		DrawLine(glm::ivec2(i + 700, j), glm::ivec2(i + 800, j), glm::vec3(0, 0, 1));
-		DrawLine(glm::ivec2(i + 700, j + 400), glm::ivec2(i + 800, j + 400), glm::vec3(1, 0, 0));
-
-		DrawLine(glm::ivec2(i + 100, j), glm::ivec2(i + 700, j), glm::vec3(0, 1, 1));
-		DrawLine(glm::ivec2(i + 100, j + 400), glm::ivec2(i + 700, j + 400), glm::vec3(1, 0, 1));
-	}
-
-	for (int i = 200, j = 200; i < 302; i += 2) {
-		DrawLine(glm::ivec2(i, j), glm::ivec2(i, j + 300), glm::vec3(1, 1, 0));
-		DrawLine(glm::ivec2(i + 700, j), glm::ivec2(i + 700, j + 300), glm::vec3(1, 0.5, 0));
-	}
-
-	rad = 75;
-	int a = 510, b = 275, c = 425, d = 690, e = 600, f = 350;
-
-	for (int i = 0; i < 360; i++) {
-		temp = i * (pi / 180.0);
-		cost = round(rad * cos(temp));
-		sint = round(rad * sin(temp));
-		DrawLine(glm::ivec2(a, b), glm::ivec2(a + cost, b + sint), glm::vec3(1, 1, 1));
-		DrawLine(glm::ivec2(a, c), glm::ivec2(a + cost, c + sint), glm::vec3(1, 1, 1));
-		DrawLine(glm::ivec2(d, b), glm::ivec2(d + cost, b + sint), glm::vec3(1, 1, 1));
-		DrawLine(glm::ivec2(d, c), glm::ivec2(d + cost, c + sint), glm::vec3(1, 1, 1));
-	}
-
-	for (int i = 0; i < 360; i++) {
-		temp = i * (pi / 180.0);
-		cost = round(rad * cos(temp));
-		sint = round(rad * sin(temp));
-		DrawLine(glm::ivec2(e, f), glm::ivec2(e + cost, f + sint), glm::vec3(1, 0.753, 0.796));
-	}
-
-	DrawLine(glm::ivec2(200, 100), glm::ivec2(300, 200), glm::vec3(1, 0.843, 0));
-	DrawLine(glm::ivec2(300, 200), glm::ivec2(900, 500), glm::vec3(1, 0.843, 0));
-	DrawLine(glm::ivec2(900, 500), glm::ivec2(1000, 600), glm::vec3(1, 0.843, 0));
-	DrawLine(glm::ivec2(200, 600), glm::ivec2(300, 500), glm::vec3(1, 0.843, 0));
-	DrawLine(glm::ivec2(300, 500), glm::ivec2(900, 200), glm::vec3(1, 0.843, 0));
-	DrawLine(glm::ivec2(900, 200), glm::ivec2(1000, 100), glm::vec3(1, 0.843, 0));
 }
 
 int Renderer::GetViewportWidth() const {
