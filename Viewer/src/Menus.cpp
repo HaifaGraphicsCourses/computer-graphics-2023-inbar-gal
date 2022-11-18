@@ -2,13 +2,12 @@
 #include <nfd.h>
 #include "Utils.h"
 
-Menus::Menus(ImGuiIO& io, Scene& scene, glm::vec4 clear_color) : my_io(io), my_scene(scene) {
-	this->clear_color = clear_color;
+Menus::Menus(ImGuiIO& io, Scene& scene) : my_io(io), my_scene(scene) {
 	this->show_demo_window = false;
 	this->show_model_window = false;
 }
 
-void Menus::DrawImguiMenus() {
+void Menus::DrawImguiMenus(glm::vec4& clear_color) {
 	// Menu Bar
 	if (ImGui::BeginMainMenuBar()) {
 		if (ImGui::BeginMenu("File")) {
@@ -16,7 +15,9 @@ void Menus::DrawImguiMenus() {
 				nfdchar_t* outPath = NULL;
 				nfdresult_t result = NFD_OpenDialog("obj;", NULL, &outPath);
 				if (result == NFD_OKAY) {
+					// adding model to model vector in scene
 					my_scene.AddModel(Utils::LoadMeshModel(outPath));
+					// setting index of active model to the last model in the vector - that's the one we draw now
 					my_scene.SetActiveModelIndex(my_scene.GetModelCount() - 1);
 					free(outPath);
 				}
@@ -32,10 +33,10 @@ void Menus::DrawImguiMenus() {
 		ImGui::EndMainMenuBar();
 	}
 
-	DrawMainMenu();
+	DrawMainMenu(clear_color);
 }
 
-void Menus::DrawMainMenu() {
+void Menus::DrawMainMenu(glm::vec4& clear_color) {
 	ImGui::Begin("Main Menu");
 	ImGui::SetWindowPos(ImVec2(500, 0));
 	ImGui::SetWindowSize(ImVec2(280, 300));
@@ -57,12 +58,12 @@ void Menus::DrawMainMenu() {
 
 void Menus::DrawModelMenu() {
 	ImGui::Begin("Model Menu");
-	ImGui::SetWindowSize(ImVec2(300, 300));
+	ImGui::SetWindowSize(ImVec2(360, 300));
 
-	if (ImGui::CollapsingHeader("Tranformation With Mouse Movements")) {
+	if (ImGui::CollapsingHeader("Mouse Directed Transformations")) {
 		TranformationMouse();
 	}
-	if (ImGui::CollapsingHeader("Tranformation With Keyboard Movements")) {
+	if (ImGui::CollapsingHeader("Keyboard Directed Transformations")) {
 		TranformationKeyboard();
 	}
 
@@ -70,13 +71,41 @@ void Menus::DrawModelMenu() {
 }
 
 void Menus::TranformationMouse() {
-	ImGui::TextColored(ImVec4(255.0, 0.0, 0.0, 1.0), "To allow mouse directed transformation, change slider");
+	ImGui::PushItemWidth(100);
 
+	ImGui::Text("Model Scaling");
+	ImGui::InputInt("scaling", &my_scene.GetActiveModel().modelScaling);
+	ImGui::Text("Model Translation (1280 width, 720 height)");
+	ImGui::InputInt("x", &my_scene.GetActiveModel().modelTranslationX);
+	ImGui::SameLine();
+	ImGui::InputInt("y", &my_scene.GetActiveModel().modelTranslationY);
+	ImGui::SameLine();
+	ImGui::InputInt("z", &my_scene.GetActiveModel().modelTranslationZ);
+	ImGui::Text("Model Rotation (0 <= degree <= 360)");
+	ImGui::InputInt("x", &my_scene.GetActiveModel().modelRotationX);
+	ImGui::SameLine();
+	ImGui::InputInt("y", &my_scene.GetActiveModel().modelRotationY);
+	ImGui::SameLine();
+	ImGui::InputInt("z", &my_scene.GetActiveModel().modelRotationZ);
 
+	ImGui::Text("World Scaling");
+	ImGui::InputInt("scaling", &my_scene.GetActiveModel().worldScaling);
+	ImGui::Text("World Translation (1280 width, 720 height)");
+	ImGui::InputInt("x", &my_scene.GetActiveModel().worldTranslationX);
+	ImGui::SameLine();
+	ImGui::InputInt("y", &my_scene.GetActiveModel().worldTranslationY);
+	ImGui::SameLine();
+	ImGui::InputInt("z", &my_scene.GetActiveModel().worldTranslationZ);
+	ImGui::Text("World Rotation (0 <= degree <= 360)");
+	ImGui::InputInt("x", &my_scene.GetActiveModel().worldRotationX);
+	ImGui::SameLine();
+	ImGui::InputInt("y", &my_scene.GetActiveModel().worldRotationY);
+	ImGui::SameLine();
+	ImGui::InputInt("z", &my_scene.GetActiveModel().worldRotationZ);
 }
 
 void Menus::TranformationKeyboard() {
-	ImGui::TextColored(ImVec4(255.0, 0.0, 0.0, 1.0), "Chose frame");
+	ImGui::Text("Choose frame");
 	static int e = 0;
 	ImGui::RadioButton("model frame", &e, 0);
 	ImGui::SameLine();
@@ -89,7 +118,7 @@ void Menus::TranformationKeyboard() {
 		ImGui::Text("1");
 	}
 
-	ImGui::TextColored(ImVec4(255.0, 0.0, 0.0, 1.0), "Keyboard instructions:");
+	ImGui::Text("Keyboard instructions:");
 	ImGui::Text("For scaling:");
 	ImGui::BulletText("press B to increas size");
 	ImGui::BulletText("press S to reduce size");

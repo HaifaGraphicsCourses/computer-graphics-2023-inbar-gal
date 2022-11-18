@@ -6,16 +6,15 @@
 
 class Menus {
 public:
-	Menus(ImGuiIO& io, Scene& scene, glm::vec4 clear_color);
-	void DrawImguiMenus();
-	void DrawMainMenu();
+	Menus(ImGuiIO& io, Scene& scene);
+	void DrawImguiMenus(glm::vec4& clear_color);
+	void DrawMainMenu(glm::vec4& clear_color);
 	void DrawModelMenu();
 	void TranformationMouse();
 	void TranformationKeyboard();
 private:
 	ImGuiIO& my_io;
 	Scene& my_scene;
-	glm::vec4 clear_color;
 	bool show_demo_window;
 	bool show_model_window;
 };

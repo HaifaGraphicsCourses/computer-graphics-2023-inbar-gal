@@ -49,12 +49,12 @@ int main(int argc, char** argv) {
 	Scene scene = Scene();
 
 	ImGuiIO& io = SetupDearImgui(window);
-	Menus menu = Menus(io, scene, clear_color);
+	Menus menu = Menus(io, scene);
 	glfwSetScrollCallback(window, ScrollCallback);
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 		StartFrame();
-		menu.DrawImguiMenus();
+		menu.DrawImguiMenus(clear_color);
 		RenderFrame(window, scene, renderer, io);
 	}
 
