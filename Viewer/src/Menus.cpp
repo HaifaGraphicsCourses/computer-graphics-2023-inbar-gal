@@ -1,6 +1,9 @@
 #include "Menus.h"
 #include <nfd.h>
 #include "Utils.h"
+#include <xstring>
+
+int Menus::modelsCount = 0;
 
 Menus::Menus(ImGuiIO& io, Scene& scene) : my_io(io), my_scene(scene) {
 	this->show_demo_window = false;
@@ -38,16 +41,12 @@ void Menus::DrawImguiMenus(glm::vec4& clear_color) {
 
 void Menus::DrawMainMenu(glm::vec4& clear_color) {
 	ImGui::Begin("Main Menu");
-	ImGui::SetWindowPos(ImVec2(500, 0));
-	ImGui::SetWindowSize(ImVec2(280, 300));
 
+	ImGui::ColorEdit3("clear color", (float*)&clear_color);
 	ImGui::Checkbox("Demo Window", &show_demo_window);
 	if (show_demo_window) {
 		ImGui::ShowDemoWindow(&show_demo_window);
 	}
-
-	ImGui::ColorEdit3("clear color", (float*)&clear_color);
-
 	ImGui::Checkbox("Model Menu", &show_model_window);
 	if (show_model_window) {
 		DrawModelMenu();
@@ -58,50 +57,84 @@ void Menus::DrawMainMenu(glm::vec4& clear_color) {
 
 void Menus::DrawModelMenu() {
 	ImGui::Begin("Model Menu");
-	ImGui::SetWindowSize(ImVec2(360, 300));
 
-	if (ImGui::CollapsingHeader("Mouse Directed Transformations")) {
-		TranformationMouse();
-	}
-	if (ImGui::CollapsingHeader("Keyboard Directed Transformations")) {
-		TranformationKeyboard();
-	}
+	TranformationMouse();
+	TranformationKeyboard();
 
 	ImGui::End();
 }
 
 void Menus::TranformationMouse() {
-	ImGui::PushItemWidth(100);
+	ImGui::Text("Mouse Transformations");
+	modelsCount = my_scene.GetModelCount();
 
-	ImGui::Text("Model Scaling");
-	ImGui::InputInt("scaling", &my_scene.GetActiveModel().modelScaling);
-	ImGui::Text("Model Translation (1280 width, 720 height)");
-	ImGui::InputInt("x", &my_scene.GetActiveModel().modelTranslationX);
-	ImGui::SameLine();
-	ImGui::InputInt("y", &my_scene.GetActiveModel().modelTranslationY);
-	ImGui::SameLine();
-	ImGui::InputInt("z", &my_scene.GetActiveModel().modelTranslationZ);
-	ImGui::Text("Model Rotation (0 <= degree <= 360)");
-	ImGui::InputInt("x", &my_scene.GetActiveModel().modelRotationX);
-	ImGui::SameLine();
-	ImGui::InputInt("y", &my_scene.GetActiveModel().modelRotationY);
-	ImGui::SameLine();
-	ImGui::InputInt("z", &my_scene.GetActiveModel().modelRotationZ);
-
-	ImGui::Text("World Scaling");
-	ImGui::InputInt("scaling", &my_scene.GetActiveModel().worldScaling);
-	ImGui::Text("World Translation (1280 width, 720 height)");
-	ImGui::InputInt("x", &my_scene.GetActiveModel().worldTranslationX);
-	ImGui::SameLine();
-	ImGui::InputInt("y", &my_scene.GetActiveModel().worldTranslationY);
-	ImGui::SameLine();
-	ImGui::InputInt("z", &my_scene.GetActiveModel().worldTranslationZ);
-	ImGui::Text("World Rotation (0 <= degree <= 360)");
-	ImGui::InputInt("x", &my_scene.GetActiveModel().worldRotationX);
-	ImGui::SameLine();
-	ImGui::InputInt("y", &my_scene.GetActiveModel().worldRotationY);
-	ImGui::SameLine();
-	ImGui::InputInt("z", &my_scene.GetActiveModel().worldRotationZ);
+	for (int i = 0; i < modelsCount; i++) {
+		ImGui::PushID(i);
+		if (ImGui::CollapsingHeader(my_scene.GetModel(i).GetModelName().c_str())) {
+			if (my_scene.GetActiveModelIndex() != i) {
+				if (ImGui::Button("Activate")) {
+					my_scene.SetActiveModelIndex(i);
+				}
+			}
+			else {
+				auto& activeModel = my_scene.GetActiveModel();
+				static int e = 0;
+				ImGui::RadioButton("model frame", &e, 0);
+				ImGui::SameLine();
+				ImGui::RadioButton("world frame", &e, 1);
+				if (e == 0) {
+					if (ImGui::SliderFloat("model scaling", &activeModel.modelScaling, 1, 1000)) {
+						activeModel.isScaling = true;
+					}
+					if (ImGui::SliderFloat("model translating x", &activeModel.modelTranslationX, 0, my_io.DisplaySize.x)) {
+						activeModel.isTranslating = true;
+					}
+					if (ImGui::SliderFloat("model translating y", &activeModel.modelTranslationY, 0, my_io.DisplaySize.y)) {
+						activeModel.isTranslating = true;
+					}
+					if (ImGui::SliderFloat("model translating z", &activeModel.modelTranslationZ, 0, 1000)) {
+						activeModel.isTranslating = true;
+					}
+					if (ImGui::SliderFloat("model rotating x", &activeModel.modelRotationX, -360, 360)) {
+						activeModel.isRotating = true;
+					}
+					if (ImGui::SliderFloat("model rotating y", &activeModel.modelRotationY, -360, 360)) {
+						activeModel.isRotating = true;
+					}
+					if (ImGui::SliderFloat("model rotating z", &activeModel.modelRotationZ, -360, 360)) {
+						activeModel.isRotating = true;
+					}
+				}
+				if (e == 1) {
+					if (ImGui::SliderFloat("world scaling", &activeModel.worldScaling, 1, 1000)) {
+						activeModel.isScaling = true;
+					}
+					if (ImGui::SliderFloat("world translating x", &activeModel.worldTranslationX, 0, my_io.DisplaySize.x)) {
+						activeModel.isTranslating = true;
+					}
+					if (ImGui::SliderFloat("world translating y", &activeModel.worldTranslationY, 0, my_io.DisplaySize.y)) {
+						activeModel.isTranslating = true;
+					}
+					if (ImGui::SliderFloat("world translating z", &activeModel.worldTranslationZ, 0, 1000)) {
+						activeModel.isTranslating = true;
+					}
+					if (ImGui::SliderFloat("world rotating x", &activeModel.worldRotationX, -360, 360)) {
+						activeModel.isRotating = true;
+					}
+					if (ImGui::SliderFloat("world rotating y", &activeModel.worldRotationY, -360, 360)) {
+						activeModel.isRotating = true;
+					}
+					if (ImGui::SliderFloat("world rotating z", &activeModel.worldRotationZ, -360, 360)) {
+						activeModel.isRotating = true;
+					}
+				}
+				if (activeModel.isScaling || activeModel.isTranslating || activeModel.isRotating) {
+					activeModel.ChangeModel();
+				}
+			}
+		}
+		ImGui::PopID();
+	}
 }
 
 void Menus::TranformationKeyboard() {

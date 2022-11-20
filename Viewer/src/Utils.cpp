@@ -6,6 +6,9 @@
 
 #include "Utils.h"
 
+using std::cout;
+using std::endl;
+
 glm::vec3 Utils::Vec3fFromStream(std::istream& issLine) {
 	float x, y, z;
 	issLine >> x >> std::ws >> y >> std::ws >> z;
@@ -29,7 +32,7 @@ std::shared_ptr<MeshModel> Utils::LoadMeshModel(const std::string& filePath) {
 		// get line
 		std::string curLine;
 		std::getline(ifile, curLine);
-		std::cout << curLine << std::endl;
+		cout << curLine << endl;
 
 		// read the type of the line
 		std::istringstream issLine(curLine);
