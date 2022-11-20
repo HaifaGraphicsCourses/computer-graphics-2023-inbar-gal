@@ -312,7 +312,7 @@ void Renderer::ClearColorBuffer(const glm::vec3& color) {
 
 void Renderer::Render(const Scene& scene) {
 	if (scene.ModelVectorEmpty() == 1) {
-		MeshModel current = scene.GetActiveModel();
+		MeshModel current = scene.GetActiveModel().GetNewModel();
 
 		for (int i = 0; i < current.GetFacesCount(); i++) {
 			// get face, than it's vertices, than draw line between the vertices
