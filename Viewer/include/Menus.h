@@ -12,11 +12,16 @@ class Menus {
 		void DrawModelMenu();
 		void TranformationMouse();
 		void TranformationKeyboard();
+
+		void CheckLimits(MeshModel& activeModel);
 	private:
 		ImGuiIO& my_io;
 		Scene& my_scene;
+
 		bool show_demo_window;
 		bool show_model_window;
 
 		static int modelsCount;
+
+		bool activateKeyboard;
 };
