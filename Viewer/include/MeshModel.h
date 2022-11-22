@@ -22,7 +22,7 @@ class MeshModel {
 		float modelRotationX, modelRotationY, modelRotationZ;
 		float worldRotationX, worldRotationY, worldRotationZ;
 
-		bool isScaling, isTranslating, isRotating;
+		bool isChanged;
 
 		void ChangeModel();
 		glm::mat4 CreateScaling(float data);
@@ -30,6 +30,8 @@ class MeshModel {
 		glm::mat4 CreateRotation(int type, float degree);
 		MeshModel GetNewModel();
 		void ApplyTransformation(glm::mat4 tranformation);
+
+		void Reset();
 	private:
 		std::vector<Face> faces;
 		std::vector<glm::vec3> vertices;

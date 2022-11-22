@@ -13,7 +13,7 @@ MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices,
 	worldTranslationX = worldTranslationY = worldTranslationZ = 0;
 	modelRotationX = modelRotationY = modelRotationZ = 0;
 	worldRotationX = worldRotationY = worldRotationZ = 0;
-	isScaling = isTranslating = isRotating = false;
+	isChanged = false;
 
 	const auto index = model_name.find_last_of('.');
 	if (index == std::string::npos) {
@@ -142,4 +142,15 @@ void MeshModel::ApplyTransformation(glm::mat4 tranformation) {
 		vertex.y = transformed.y;
 		vertex.z = transformed.z;
 	}
+}
+
+void MeshModel::Reset() {
+	modelScaling = worldScaling = 1;
+	modelTranslationX = modelTranslationY = modelTranslationZ = 0;
+	worldTranslationX = worldTranslationY = worldTranslationZ = 0;
+	modelRotationX = modelRotationY = modelRotationZ = 0;
+	worldRotationX = worldRotationY = worldRotationZ = 0;
+
+	modelTransformation = glm::mat4(1.0);
+	worldTransformation = glm::mat4(1.0);
 }
