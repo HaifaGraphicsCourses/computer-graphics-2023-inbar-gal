@@ -8,12 +8,7 @@ MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices,
 	modelScalingMat(1.0f), worldScalingMat(1.0f),
 	modelTranslation(1.0f), worldTranslation(1.0f) {
 	// begin
-	modelScaling = worldScaling = 1;
-	modelTranslationX = modelTranslationY = modelTranslationZ = 0;
-	worldTranslationX = worldTranslationY = worldTranslationZ = 0;
-	modelRotationX = modelRotationY = modelRotationZ = 0;
-	worldRotationX = worldRotationY = worldRotationZ = 0;
-	isChanged = false;
+	InitialLoading();
 
 	const auto index = model_name.find_last_of('.');
 	if (index == std::string::npos) {
@@ -22,6 +17,13 @@ MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices,
 	else {
 		this->model_name = model_name.substr(0, index);
 	}
+
+	modelScaling = worldScaling = 1;
+	modelTranslationX = modelTranslationY = modelTranslationZ = 0;
+	worldTranslationX = worldTranslationY = worldTranslationZ = 0;
+	modelRotationX = modelRotationY = modelRotationZ = 0;
+	worldRotationX = worldRotationY = worldRotationZ = 0;
+	isChanged = false;
 }
 
 MeshModel::~MeshModel() {
@@ -80,9 +82,9 @@ void MeshModel::ChangeModel() {
 
 glm::mat4 MeshModel::CreateScaling(float data) {
 	return glm::mat4(
-		abs(data), 0, 0, 0,
-		0, abs(data), 0, 0,
-		0, 0, abs(data), 0,
+		data, 0, 0, 0,
+		0, data, 0, 0,
+		0, 0, data, 0,
 		0, 0, 0, 1
 	);
 }
@@ -153,4 +155,16 @@ void MeshModel::Reset() {
 
 	modelTransformation = glm::mat4(1.0);
 	worldTransformation = glm::mat4(1.0);
+}
+
+void MeshModel::InitialLoading() {
+	modelScaling = 100;
+	modelTranslationX = 900;
+	modelTranslationY = 500;
+
+	modelScalingMat = CreateScaling(modelScaling);
+	modelTranslation = CreateTranslation(modelTranslationX, modelTranslationY, 0);
+	modelTransformation = modelTranslation * modelScalingMat * modelRotation;
+
+	GetNewModel();
 }

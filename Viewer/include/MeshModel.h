@@ -32,6 +32,7 @@ class MeshModel {
 		void ApplyTransformation(glm::mat4 tranformation);
 
 		void Reset();
+		void InitialLoading();
 	private:
 		std::vector<Face> faces;
 		std::vector<glm::vec3> vertices;

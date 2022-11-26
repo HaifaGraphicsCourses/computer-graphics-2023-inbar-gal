@@ -15,7 +15,7 @@
 /**
  * Fields
  */
-glm::vec4 clear_color = glm::vec4(0.8f, 0.8f, 0.8f, 1.00f);
+glm::vec4 clear_color = glm::vec4(0.0f, 0.0f, 0.0f, 1.00f);
 
 /**
  * Function declarations
