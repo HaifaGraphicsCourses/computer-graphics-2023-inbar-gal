@@ -8,7 +8,8 @@ We have performed a few changes in preparation for that:
 - We call the **Utility class – LoadMeshModel** method, and output the model's vertices, normals and faces to the console using cout. The model is now set to be the **active** one in the scene 
 
 We used the Demo obj file in this case because it was the shortest.
-
+![stream1](stream1.png)
+![stream2](stream2.png)
 ## Initial Transformation:
 Most of the models we have here are either incredibly small or simply drawn outside the window thanks to it's coordinates. That is why we scale and translate each model when it's initially being loaded so it would fit the screen.
 - Each time a model is construct, the constructor calls **InitialLoading** method which sets the parameters for the scaling and translations
@@ -21,8 +22,7 @@ Most of the models we have here are either incredibly small or simply drawn outs
 - This is a triangle mesh model – we go through every face, find it's 3 vertices, ignore the z value, and draw the triangle in white using the **DrawLine** method.
 
 If this is the empty screen, the model should be fully presentable by now
-![screen1](screen1.png)
-![screen2](screen2.png)
+![screen1](screen1.png)![screen2](screen2.png)
 ## GUI Items For Transformations:
 There are two kinds of transformations we need to consider: 
 - Model frame
@@ -62,3 +62,4 @@ Because we submitted this assignment as a team of 2, there were two additional r
 ![button2](button2.png) 
 ![button3](button3.png) 
 ### GIF
+![banana](banana.gif)
