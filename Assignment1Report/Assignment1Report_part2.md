@@ -8,6 +8,7 @@ We have performed a few changes in preparation for that:
 - We call the **Utility class – LoadMeshModel** method, and output the model's vertices, normals and faces to the console using cout. The model is now set to be the **active** one in the scene 
 
 We used the Demo obj file in this case because it was the shortest.
+
 ![stream1](stream1.png)
 ![stream2](stream2.png)
 ## Initial Transformation:
