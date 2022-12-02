@@ -10,6 +10,16 @@ class Camera {
 
 		const glm::mat4x4& GetProjectionTransformation() const;
 		const glm::mat4x4& GetViewTransformation() const;
+		
+		void SetOrthographic();
+		void SetPerspective();
+	
+		float eyeX, eyeY, eyeZ;
+		float atX, atY, atZ;
+		float upX, upY, upZ;
+
+		float orthoLeft, orthoRight, orthoTop, orthoBottom, orthoNear, orthoFar;
+		float perNear, perFar, perWidth, perHeight, perFOV;
 
 	private:
 		glm::mat4x4 view_transformation;
