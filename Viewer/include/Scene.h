@@ -19,8 +19,8 @@ class Scene {
 	
 		void AddCamera(const shared_ptr<Camera>& camera);
 		int GetCameraCount() const;
-		Camera& GetCamera(int index);
-		Camera& GetActiveCamera();
+		Camera& GetCamera(int index) const;
+		Camera& GetActiveCamera() const;
 
 		void SetActiveCameraIndex(int index);
 		int GetActiveCameraIndex() const;

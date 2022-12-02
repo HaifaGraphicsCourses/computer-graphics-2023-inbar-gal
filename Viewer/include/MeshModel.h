@@ -28,11 +28,10 @@ class MeshModel {
 		glm::mat4 CreateScaling(float data);
 		glm::mat4 CreateTranslation(float x, float y, float z);
 		glm::mat4 CreateRotation(int type, float degree);
-		MeshModel GetNewModel();
+		MeshModel GetNewModel(glm::mat4x4 view, glm::mat4x4 projection);
 		void ApplyTransformation(glm::mat4 tranformation);
 
 		void Reset();
-		void InitialLoading();
 	private:
 		std::vector<Face> faces;
 		std::vector<glm::vec3> vertices;

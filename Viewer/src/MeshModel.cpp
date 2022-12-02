@@ -8,8 +8,6 @@ MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices,
 	modelScalingMat(1.0f), worldScalingMat(1.0f),
 	modelTranslation(1.0f), worldTranslation(1.0f) {
 	// begin
-	InitialLoading();
-
 	const auto index = model_name.find_last_of('.');
 	if (index == std::string::npos) {
 		this->model_name = model_name;
@@ -129,9 +127,9 @@ glm::mat4 MeshModel::CreateRotation(int type, float degree) {
 	}
 }
 
-MeshModel MeshModel::GetNewModel() {
+MeshModel MeshModel::GetNewModel(glm::mat4x4 view, glm::mat4x4 projection) {
 	MeshModel newM(*this);
-	glm::mat4 transformation = worldTransformation * modelTransformation;
+	glm::mat4 transformation = projection * glm::inverse(view) * worldTransformation * modelTransformation;
 	newM.ApplyTransformation(transformation);
 	return newM;
 }
@@ -155,16 +153,4 @@ void MeshModel::Reset() {
 
 	modelTransformation = glm::mat4(1.0);
 	worldTransformation = glm::mat4(1.0);
-}
-
-void MeshModel::InitialLoading() {
-	modelScaling = 100;
-	modelTranslationX = 900;
-	modelTranslationY = 500;
-
-	modelScalingMat = CreateScaling(modelScaling);
-	modelTranslation = CreateTranslation(modelTranslationX, modelTranslationY, 0);
-	modelTransformation = modelTranslation * modelScalingMat * modelRotation;
-
-	GetNewModel();
 }

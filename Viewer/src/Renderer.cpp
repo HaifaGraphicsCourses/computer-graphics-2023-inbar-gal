@@ -311,19 +311,26 @@ void Renderer::ClearColorBuffer(const glm::vec3& color) {
 }
 
 void Renderer::Render(const Scene& scene) {
+	int half_width = viewport_width / 2;
+	int half_height = viewport_height / 2;
+
 	if (scene.ModelVectorEmpty() == 1) {
-		MeshModel current = scene.GetActiveModel().GetNewModel();
+		for (int i = 0; i < scene.GetModelCount(); i++) {
+			glm::mat4x4 first = scene.GetActiveCamera().GetViewTransformation();
+			glm::mat4x4 second = scene.GetActiveCamera().GetProjectionTransformation();
+			MeshModel current = scene.GetModel(i).GetNewModel(first, second);
 
-		for (int i = 0; i < current.GetFacesCount(); i++) {
-			// get face, than it's vertices, than draw line between the vertices
-			Face currentF = current.GetFace(i);
-			int one = currentF.GetVertexIndex(0) - 1, two = currentF.GetVertexIndex(1) - 1, three = currentF.GetVertexIndex(2) - 1;
-			glm::vec3 v1 = current.GetVertex(one), v2 = current.GetVertex(two), v3 = current.GetVertex(three);
-			glm::ivec2 trueV1(v1.x, v1.y), trueV2(v2.x, v2.y), trueV3(v3.x, v3.y);
+			for (int i = 0; i < current.GetFacesCount(); i++) {
+				// get face, than it's vertices, than draw line between the vertices
+				Face currentF = current.GetFace(i);
+				int one = currentF.GetVertexIndex(0) - 1, two = currentF.GetVertexIndex(1) - 1, three = currentF.GetVertexIndex(2) - 1;
+				glm::vec3 v1 = current.GetVertex(one), v2 = current.GetVertex(two), v3 = current.GetVertex(three);
+				glm::ivec2 trueV1(v1.x + half_width, v1.y + half_height), trueV2(v2.x + half_width, v2.y + half_height), trueV3(v3.x + half_width, v3.y + half_height);
 
-			DrawLine(trueV1, trueV2, glm::vec3(1, 1, 1));
-			DrawLine(trueV2, trueV3, glm::vec3(1, 1, 1));
-			DrawLine(trueV3, trueV1, glm::vec3(1, 1, 1));
+				DrawLine(trueV1, trueV2, glm::vec3(1, 1, 1));
+				DrawLine(trueV2, trueV3, glm::vec3(1, 1, 1));
+				DrawLine(trueV3, trueV1, glm::vec3(1, 1, 1));
+			}
 		}
 	}
 }
