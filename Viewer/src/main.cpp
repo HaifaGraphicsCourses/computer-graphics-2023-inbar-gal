@@ -50,6 +50,11 @@ int main(int argc, char** argv) {
 
 	ImGuiIO& io = SetupDearImgui(window);
 	Menus menu = Menus(io, scene);
+
+	std::shared_ptr<Camera> camera1(new Camera());
+	scene.AddCamera(camera1);
+	scene.SetActiveCameraIndex(scene.GetCameraCount() - 1);
+
 	glfwSetScrollCallback(window, ScrollCallback);
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
