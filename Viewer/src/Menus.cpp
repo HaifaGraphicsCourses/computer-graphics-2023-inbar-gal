@@ -4,11 +4,14 @@
 #include <xstring>
 
 int Menus::modelsCount = 0;
+int Menus::cameraCount = 0;
 
 Menus::Menus(ImGuiIO& io, Scene& scene) : my_io(io), my_scene(scene) {
 	this->show_demo_window = false;
 	this->show_model_window = false;
 	this->activateKeyboard = false;
+	this->show_camera_menu = false;
+	this->orbitAroundOrigin = false;
 }
 
 void Menus::DrawImguiMenus(glm::vec4& clear_color) {
@@ -54,6 +57,11 @@ void Menus::DrawMainMenu(glm::vec4& clear_color) {
 		DrawModelMenu();
 	}
 
+	ImGui::Checkbox("Camera Menu", &show_camera_menu);
+	if (show_camera_menu) {
+		DrawCameraMenu();
+	}
+
 	ImGui::End();
 }
 
@@ -93,10 +101,10 @@ void Menus::TranformationMouse() {
 					if (ImGui::SliderFloat("model scaling", &activeModel.modelScaling, 1, 1000)) {
 						activeModel.isChanged = true;
 					}
-					if (ImGui::SliderFloat("model translating x", &activeModel.modelTranslationX, 0, my_io.DisplaySize.x)) {
+					if (ImGui::SliderFloat("model translating x", &activeModel.modelTranslationX, (-my_io.DisplaySize.x / 2), (my_io.DisplaySize.x / 2))) {
 						activeModel.isChanged = true;
 					}
-					if (ImGui::SliderFloat("model translating y", &activeModel.modelTranslationY, 0, my_io.DisplaySize.y)) {
+					if (ImGui::SliderFloat("model translating y", &activeModel.modelTranslationY, (-my_io.DisplaySize.y / 2), (my_io.DisplaySize.y / 2))) {
 						activeModel.isChanged = true;
 					}
 					if (ImGui::SliderFloat("model translating z", &activeModel.modelTranslationZ, 0, 1000)) {
@@ -116,10 +124,10 @@ void Menus::TranformationMouse() {
 					if (ImGui::SliderFloat("world scaling", &activeModel.worldScaling, 1, 1000)) {
 						activeModel.isChanged = true;
 					}
-					if (ImGui::SliderFloat("world translating x", &activeModel.worldTranslationX, 0, my_io.DisplaySize.x)) {
+					if (ImGui::SliderFloat("world translating x", &activeModel.worldTranslationX, (-my_io.DisplaySize.x / 2), (my_io.DisplaySize.x / 2))) {
 						activeModel.isChanged = true;
 					}
-					if (ImGui::SliderFloat("world translating y", &activeModel.worldTranslationY, 0, my_io.DisplaySize.y)) {
+					if (ImGui::SliderFloat("world translating y", &activeModel.worldTranslationY, (-my_io.DisplaySize.y / 2), (my_io.DisplaySize.y / 2))) {
 						activeModel.isChanged = true;
 					}
 					if (ImGui::SliderFloat("world translating z", &activeModel.worldTranslationZ, 0, 1000)) {
@@ -315,29 +323,29 @@ void Menus::CheckLimits(MeshModel& activeModel) {
 		activeModel.worldScaling = 1;
 	}
 
-	if (activeModel.modelTranslationX > my_io.DisplaySize.x) {
-		activeModel.modelTranslationX = my_io.DisplaySize.x;
+	if (activeModel.modelTranslationX > (my_io.DisplaySize.x / 2)) {
+		activeModel.modelTranslationX = (my_io.DisplaySize.x / 2);
 	}
-	if (activeModel.modelTranslationX < 0) {
-		activeModel.modelTranslationX = 0;
+	if (activeModel.modelTranslationX < (-my_io.DisplaySize.x / 2)) {
+		activeModel.modelTranslationX = (-my_io.DisplaySize.x / 2);
 	}
-	if (activeModel.worldTranslationX > my_io.DisplaySize.x) {
-		activeModel.worldTranslationX = my_io.DisplaySize.x;
+	if (activeModel.worldTranslationX > (my_io.DisplaySize.x / 2)) {
+		activeModel.worldTranslationX = (my_io.DisplaySize.x / 2);
 	}
-	if (activeModel.worldTranslationX < 0) {
-		activeModel.worldTranslationX = 0;
+	if (activeModel.worldTranslationX < (-my_io.DisplaySize.x / 2)) {
+		activeModel.worldTranslationX = (-my_io.DisplaySize.x / 2);
 	}
-	if (activeModel.modelTranslationY > my_io.DisplaySize.y) {
-		activeModel.modelTranslationY = my_io.DisplaySize.y;
+	if (activeModel.modelTranslationY > (my_io.DisplaySize.y / 2)) {
+		activeModel.modelTranslationY = (my_io.DisplaySize.y / 2);
 	}
-	if (activeModel.modelTranslationY < 0) {
-		activeModel.modelTranslationY = 0;
+	if (activeModel.modelTranslationY < (-my_io.DisplaySize.y / 2)) {
+		activeModel.modelTranslationY = (-my_io.DisplaySize.y / 2);
 	}
-	if (activeModel.worldTranslationY > my_io.DisplaySize.y) {
-		activeModel.worldTranslationY = my_io.DisplaySize.y;
+	if (activeModel.worldTranslationY > (my_io.DisplaySize.y / 2)) {
+		activeModel.worldTranslationY = (my_io.DisplaySize.y / 2);
 	}
-	if (activeModel.worldTranslationY < 0) {
-		activeModel.worldTranslationY = 0;
+	if (activeModel.worldTranslationY < (-my_io.DisplaySize.y / 2)) {
+		activeModel.worldTranslationY = (-my_io.DisplaySize.y / 2);
 	}
 	if (activeModel.modelTranslationZ > 1000) {
 		activeModel.modelTranslationZ = 1000;
@@ -387,5 +395,152 @@ void Menus::CheckLimits(MeshModel& activeModel) {
 	}
 	if (activeModel.worldRotationZ < -360) {
 		activeModel.worldRotationZ = -360;
+	}
+}
+
+void Menus::DrawCameraMenu() {
+	ImGui::Begin("Camera Menu");
+
+	if (ImGui::Button("Add Another Camera")) {
+		std::shared_ptr<Camera> camera2(new Camera());
+		my_scene.AddCamera(camera2);
+		my_scene.SetActiveCameraIndex(my_scene.GetCameraCount() - 1);
+	}
+
+	CameraPosition();
+
+	ImGui::End();
+}
+
+void Menus::CameraPosition() {
+	ImGui::Text("Change Camera Position");
+	cameraCount = my_scene.GetCameraCount();
+
+	for (int i = 0; i < cameraCount; i++) {
+		ImGui::PushID(i);
+		string temp = "camera " + to_string(i + 1);
+		const char* name = temp.c_str();
+
+		if (ImGui::CollapsingHeader(name)) {
+			if (my_scene.GetActiveCameraIndex() != i) {
+				if (ImGui::Button("Activate")) {
+					my_scene.SetActiveCameraIndex(i);
+				}
+			}
+			else {
+				auto& activeCamera = my_scene.GetActiveCamera();
+				if (ImGui::Button("Reset Camera Position")) {
+					activeCamera.Reset();
+				}
+
+				ImGui::Checkbox("Orbit Around Origin", &orbitAroundOrigin);
+				if (orbitAroundOrigin) {
+
+				}
+				ImGui::PushItemWidth(50);
+				if (ImGui::SliderFloat("up x", &activeCamera.upX, -5, 5)) {
+					activeCamera.isChanged = true;
+				}
+				ImGui::SameLine();
+				if (ImGui::SliderFloat("up y", &activeCamera.upY, -5, 5)) {
+					activeCamera.isChanged = true;
+				}
+				ImGui::SameLine();
+				if (ImGui::SliderFloat("up z", &activeCamera.upZ, -5, 5)) {
+					activeCamera.isChanged = true;
+				}
+
+				if (ImGui::SliderFloat("eye x", &activeCamera.eyeX, -5, 5)) {
+					activeCamera.isChanged = true;
+				}
+				ImGui::SameLine();
+				if (ImGui::SliderFloat("eye y", &activeCamera.eyeY, -5, 5)) {
+					activeCamera.isChanged = true;
+				}
+				ImGui::SameLine();
+				if (ImGui::SliderFloat("eye z", &activeCamera.eyeZ, -5, 5)) {
+					activeCamera.isChanged = true;
+				}
+
+				if (ImGui::SliderFloat("at x", &activeCamera.atX, -5, 5)) {
+					activeCamera.isChanged = true;
+				}
+				ImGui::SameLine();
+				if (ImGui::SliderFloat("at y", &activeCamera.atY, -5, 5)) {
+					activeCamera.isChanged = true;
+				}
+				ImGui::SameLine();
+				if (ImGui::SliderFloat("at z", &activeCamera.atZ, -5, 5)) {
+					activeCamera.isChanged = true;
+				}
+				if (activeCamera.isChanged) {
+					activeCamera.CallLookAt();
+				}
+				ImGui::PopItemWidth();
+				ChangeProjection();
+			}
+		}
+		ImGui::PopID();
+	}
+}
+
+void Menus::ChangeProjection() {
+	ImGui::Text("Change Projection Parameters");
+	auto& activeCamera = my_scene.GetActiveCamera();
+	if (ImGui::Button("Reset Camera Projection")) {
+		activeCamera.Reset1();
+	}
+
+	static int e = 0;
+	ImGui::RadioButton("orthographic", &e, 0);
+	ImGui::SameLine();
+	ImGui::RadioButton("perspective", &e, 1);
+
+	if (e == 0) {
+		ImGui::PushItemWidth(100);
+		if (ImGui::SliderFloat("left", &activeCamera.orthoLeft, -5, 5)) {
+			activeCamera.isChanged1 = true;
+		}
+		if (ImGui::SliderFloat("right", &activeCamera.orthoRight, -5, 5)) {
+			activeCamera.isChanged1 = true;
+		}
+		if (ImGui::SliderFloat("bottom", &activeCamera.orthoBottom, -5, 5)) {
+			activeCamera.isChanged1 = true;
+		}
+		if (ImGui::SliderFloat("top", &activeCamera.orthoTop, -5, 5)) {
+			activeCamera.isChanged1 = true;
+		}
+		if (ImGui::SliderFloat("near", &activeCamera.orthoNear, -5, 5)) {
+			activeCamera.isChanged1 = true;
+		}
+		if (ImGui::SliderFloat("far", &activeCamera.orthoFar, -5, 5)) {
+			activeCamera.isChanged1 = true;
+		}
+		ImGui::PopItemWidth();
+		if (activeCamera.isChanged1) {
+			activeCamera.SetOrthographic();
+		}
+	}
+	if (e == 1) {
+		ImGui::PushItemWidth(100);
+		if (ImGui::SliderFloat("fovy", &activeCamera.perFOV, 1, 179)) {
+			activeCamera.isChanged1 = true;
+		}
+		if (ImGui::SliderFloat("width", &activeCamera.perWidth, 1, my_io.DisplaySize.x)) {
+			activeCamera.isChanged1 = true;
+		}
+		if (ImGui::SliderFloat("height", &activeCamera.perHeight, 1, my_io.DisplaySize.y)) {
+			activeCamera.isChanged1 = true;
+		}
+		if (ImGui::SliderFloat("far perspective", &activeCamera.perFar, 0.2, 100)) {
+			activeCamera.isChanged1 = true;
+		}
+		if (ImGui::SliderFloat("near perspective", &activeCamera.perNear, 0.1, activeCamera.perFar)) {
+			activeCamera.isChanged1 = true;
+		}
+		ImGui::PopItemWidth();
+		if (activeCamera.isChanged1) {
+			activeCamera.SetPerspective();
+		}
 	}
 }

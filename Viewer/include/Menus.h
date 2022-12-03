@@ -7,21 +7,30 @@
 class Menus {
 	public:
 		Menus(ImGuiIO& io, Scene& scene);
+
 		void DrawImguiMenus(glm::vec4& clear_color);
 		void DrawMainMenu(glm::vec4& clear_color);
+
 		void DrawModelMenu();
 		void TranformationMouse();
 		void TranformationKeyboard();
 
 		void CheckLimits(MeshModel& activeModel);
+
+		void DrawCameraMenu();
+		void CameraPosition();
+		void ChangeProjection();
+
 	private:
 		ImGuiIO& my_io;
 		Scene& my_scene;
 
 		bool show_demo_window;
 		bool show_model_window;
+		bool activateKeyboard;
+		bool show_camera_menu;
+		bool orbitAroundOrigin;
 
 		static int modelsCount;
-
-		bool activateKeyboard;
+		static int cameraCount;
 };
