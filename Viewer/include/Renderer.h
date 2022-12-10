@@ -14,13 +14,15 @@ class Renderer {
 		int GetViewportHeight() const;
 	
 	private:
+		void PutPixel(const int i, const int j, const glm::vec3& color);
+		void DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color);
 		void drawX(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color);
 		void drawY(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color);
 		void slopeFloat(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color, int DQ, int DP);
 		void slopeInt(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color, int DQ, int DP);
-
-		void PutPixel(const int i, const int j, const glm::vec3& color);
-		void DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color);
+		
+		void DrawAxes(const Scene& scene);
+		void DrawBoundingBox(const Scene& scene);
 
 		void CreateBuffers(int w, int h);
 		void CreateOpenglBuffer();

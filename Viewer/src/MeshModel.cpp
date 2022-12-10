@@ -1,7 +1,7 @@
 #include "MeshModel.h"
 
-MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices,
-	std::vector<glm::vec3> normals, const std::string& model_name) :
+MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices, 
+					 std::vector<glm::vec3> normals, const std::string& model_name) : 
 	faces(faces), vertices(vertices), normals(normals),
 	modelTransformation(1.0f), worldTransformation(1.0f),
 	modelRotation(1.0f), worldRotation(1.0f),
@@ -28,7 +28,7 @@ MeshModel::~MeshModel() {
 
 }
 
-MeshModel::MeshModel(const MeshModel& other) :
+MeshModel::MeshModel(const MeshModel& other) : 
 	faces(other.faces), vertices(other.vertices), normals(other.normals),
 	model_name(other.model_name),
 	modelTransformation(other.modelTransformation), worldTransformation(other.worldTransformation) {
@@ -38,6 +38,8 @@ MeshModel::MeshModel(const MeshModel& other) :
 	worldTranslationX = worldTranslationY = worldTranslationZ = 0;
 	modelRotationX = modelRotationY = modelRotationZ = 0;
 	worldRotationX = worldRotationY = worldRotationZ = 0;
+
+	CalculateMinMaxOfModel();
 }
 
 const Face& MeshModel::GetFace(int index) const {
@@ -100,7 +102,7 @@ glm::mat4 MeshModel::CreateRotation(int type, float degree) {
 	float pi = acos(-1);
 	float cost = cos(degree * pi / 180.0);
 	float sint = sin(degree * pi / 180.0);
-
+	
 	if (type == 1) {
 		return glm::mat4(
 			1, 0, 0, 0,
@@ -138,8 +140,8 @@ void MeshModel::ApplyTransformation(glm::mat4 tranformation) {
 	for (int i = 0; i < vertices.size(); i++) {
 		auto& vertex = vertices[i];
 		glm::vec4 transformed = tranformation * glm::vec4(vertex, 1.0f);
-		vertex.x = transformed.x;
-		vertex.y = transformed.y;
+		vertex.x = transformed.x + 960;
+		vertex.y = transformed.y + 540;
 		vertex.z = transformed.z;
 	}
 }
@@ -153,4 +155,37 @@ void MeshModel::Reset() {
 
 	modelTransformation = glm::mat4(1.0);
 	worldTransformation = glm::mat4(1.0);
+}
+
+void MeshModel::CalculateMinMaxOfModel() {
+	glm::vec3 temp = vertices[0];
+	minX = temp.x;
+	maxX = temp.x;
+	minY = temp.y;
+	maxY = temp.y;
+	minZ = temp.z;
+	maxZ = temp.z;
+
+	for (int i = 1; i < vertices.size(); i++) {
+		temp = vertices[i];
+		minX = fmin(minX, temp.x);
+		minY = fmin(minY, temp.y);
+		minZ = fmin(minZ, temp.z);
+		maxX = fmax(maxX, temp.x);
+		maxY = fmax(maxY, temp.y);
+		maxZ = fmax(maxZ, temp.z);
+	}
+}
+
+void MeshModel::ChangeVectors(glm::vec3& vector, int type, glm::mat4x4 view, glm::mat4x4 projection) {
+	glm::vec4 h = glm::vec4(vector, 1);
+	if (type == 1) {
+		h = projection * glm::inverse(view) * worldTransformation * modelTransformation * h;
+	}
+	else if (type == 2) {
+		h = projection * glm::inverse(view) * worldTransformation * h;
+	}
+	vector.x = h.x + 960;
+	vector.y = h.y + 540;
+	vector.z = h.z;
 }

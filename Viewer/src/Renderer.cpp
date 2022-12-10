@@ -4,6 +4,7 @@
 
 #include "Renderer.h"
 #include "InitShader.h"
+#include "Menus.h"
 
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
 #define Z_INDEX(width,x,y) ((x)+(y)*(width))
@@ -35,7 +36,7 @@ void Renderer::DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::v
 		PutPixel(p1.x, p1.y, color);
 		return;
 	}
-
+	
 	// calculating x difference
 	int deltaP = p2.x - p1.x;
 	// if deltaP is 0, it's a straight line up or down 
@@ -43,7 +44,7 @@ void Renderer::DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::v
 		drawX(p1, p2, color);
 		return;
 	}
-
+	
 	// calculating y difference
 	int deltaQ = p2.y - p1.y;
 	// if deltaQ is 0, it's a straight line left or right 
@@ -55,7 +56,7 @@ void Renderer::DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::v
 	/* since deltaQ / deltaP are absolute values, slopeA can be
 	* 0 < a < 1
 	* a > 1 -> in that case, x and y switch roles */
-	float slopeA = ((float)abs(deltaQ)) / ((float)abs(deltaP));
+	float slopeA = ((float)abs(deltaQ)) / ((float)abs(deltaP));	
 	if (slopeA < 1) {
 		slopeFloat(p1, p2, color, deltaQ, deltaP);
 	}
@@ -325,13 +326,17 @@ void Renderer::Render(const Scene& scene) {
 				Face currentF = current.GetFace(i);
 				int one = currentF.GetVertexIndex(0) - 1, two = currentF.GetVertexIndex(1) - 1, three = currentF.GetVertexIndex(2) - 1;
 				glm::vec3 v1 = current.GetVertex(one), v2 = current.GetVertex(two), v3 = current.GetVertex(three);
-				glm::ivec2 trueV1(v1.x + half_width, v1.y + half_height), trueV2(v2.x + half_width, v2.y + half_height), trueV3(v3.x + half_width, v3.y + half_height);
+				// glm::ivec2 trueV1(v1.x + half_width, v1.y + half_height), trueV2(v2.x + half_width, v2.y + half_height), trueV3(v3.x + half_width, v3.y + half_height);
+				glm::ivec2 trueV1(v1.x, v1.y), trueV2(v2.x, v2.y), trueV3(v3.x, v3.y);
 
 				DrawLine(trueV1, trueV2, glm::vec3(1, 1, 1));
 				DrawLine(trueV2, trueV3, glm::vec3(1, 1, 1));
 				DrawLine(trueV3, trueV1, glm::vec3(1, 1, 1));
 			}
 		}
+
+		DrawAxes(scene);
+		DrawBoundingBox(scene);
 	}
 }
 
@@ -341,4 +346,100 @@ int Renderer::GetViewportWidth() const {
 
 int Renderer::GetViewportHeight() const {
 	return viewport_height;
+}
+
+void Renderer::DrawAxes(const Scene& scene) {
+	if (scene.showAxes) {
+		glm::mat4x4 first = scene.GetActiveCamera().GetViewTransformation();
+		glm::mat4x4 second = scene.GetActiveCamera().GetProjectionTransformation();
+
+		for (int i = 0; i < scene.GetModelCount(); i++) {
+			MeshModel current = scene.GetModel(i);
+
+			glm::vec3 beginX(current.minX, 0.0, 0.0);
+			glm::vec3 endX(current.maxX, 0.0, 0.0);
+			glm::vec3 beginY(0.0, current.minY, 0.0);
+			glm::vec3 endY(0.0, current.maxY, 0.0);
+			glm::vec3 beginZ(0.0, 0.0, current.minZ);
+			glm::vec3 endZ(0.0, 0.0, current.maxZ);
+
+			current.ChangeVectors(beginX, 1, first, second);
+			current.ChangeVectors(endX, 1, first, second);
+			current.ChangeVectors(beginY, 1, first, second);
+			current.ChangeVectors(endY, 1, first, second);
+			current.ChangeVectors(beginZ, 1, first, second);
+			current.ChangeVectors(endZ, 1, first, second);
+
+			// red
+			DrawLine(beginX, endX, glm::vec3(1, 0, 0));
+			// green
+			DrawLine(beginY, endY, glm::vec3(0, 1, 0));
+			// blue
+			DrawLine(beginZ, endZ, glm::vec3(0, 0, 1));
+		}
+
+		MeshModel current = scene.GetActiveModel();
+		glm::vec3 beginX(-1920.0, 0.0, 0.0);
+		glm::vec3 endX(1920.0, 0.0, 0.0);
+		glm::vec3 beginY(0.0, -1920.0, 0.0);
+		glm::vec3 endY(0.0, 1920.0, 0.0);
+		glm::vec3 beginZ(0.0, 0.0, -1920.0);
+		glm::vec3 endZ(0.0, 0.0, 1920.0);
+
+		current.ChangeVectors(beginX, 2, first, second);
+		current.ChangeVectors(endX, 2, first, second);
+		current.ChangeVectors(beginY, 2, first, second);
+		current.ChangeVectors(endY, 2, first, second);
+		current.ChangeVectors(beginZ, 2, first, second);
+		current.ChangeVectors(endZ, 2, first, second);
+
+		// purple
+		DrawLine(beginX, endX, glm::vec3(1, 0, 1));
+		// cyan
+		DrawLine(beginY, endY, glm::vec3(0, 1, 1));
+		// yellow
+		DrawLine(beginZ, endZ, glm::vec3(1, 1, 0));
+	}
+}
+
+void Renderer::DrawBoundingBox(const Scene& scene) {
+	if (scene.showBoundingBox) {
+		glm::mat4x4 first = scene.GetActiveCamera().GetViewTransformation();
+		glm::mat4x4 second = scene.GetActiveCamera().GetProjectionTransformation();
+
+		for (int i = 0; i < scene.GetModelCount(); i++) {
+			MeshModel current = scene.GetModel(i);
+
+			glm::vec3 point1(current.minX, current.minY, current.minZ);
+			glm::vec3 point2(current.minX, current.minY, current.maxZ);
+			glm::vec3 point3(current.minX, current.maxY, current.minZ);
+			glm::vec3 point4(current.minX, current.maxY, current.maxZ);
+			glm::vec3 point5(current.maxX, current.minY, current.minZ);
+			glm::vec3 point6(current.maxX, current.minY, current.maxZ);
+			glm::vec3 point7(current.maxX, current.maxY, current.minZ);
+			glm::vec3 point8(current.maxX, current.maxY, current.maxZ);
+
+			current.ChangeVectors(point1, 1, first, second);
+			current.ChangeVectors(point2, 1, first, second);
+			current.ChangeVectors(point3, 1, first, second);
+			current.ChangeVectors(point4, 1, first, second);
+			current.ChangeVectors(point5, 1, first, second);
+			current.ChangeVectors(point6, 1, first, second);
+			current.ChangeVectors(point7, 1, first, second);
+			current.ChangeVectors(point8, 1, first, second);
+
+			DrawLine(point1, point2, glm::vec3(1, 0.647, 0));
+			DrawLine(point1, point3, glm::vec3(1, 0.647, 0));
+			DrawLine(point1, point5, glm::vec3(1, 0.647, 0));
+			DrawLine(point2, point4, glm::vec3(1, 0.647, 0));
+			DrawLine(point2, point6, glm::vec3(1, 0.647, 0));
+			DrawLine(point3, point4, glm::vec3(1, 0.647, 0));
+			DrawLine(point3, point7, glm::vec3(1, 0.647, 0));
+			DrawLine(point5, point6, glm::vec3(1, 0.647, 0));
+			DrawLine(point5, point7, glm::vec3(1, 0.647, 0));
+			DrawLine(point6, point8, glm::vec3(1, 0.647, 0));
+			DrawLine(point8, point4, glm::vec3(1, 0.647, 0));
+			DrawLine(point8, point7, glm::vec3(1, 0.647, 0));
+		}
+	}
 }
