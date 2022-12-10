@@ -29,6 +29,8 @@ class Scene {
 		int GetActiveModelIndex() const;
 
 		int ModelVectorEmpty() const;
+		bool showAxes;
+		bool showBoundingBox;
 	private:
 		vector<shared_ptr<MeshModel>> mesh_models;
 		vector<shared_ptr<Camera>> cameras;

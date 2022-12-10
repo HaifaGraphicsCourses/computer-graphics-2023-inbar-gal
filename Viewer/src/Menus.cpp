@@ -12,6 +12,8 @@ Menus::Menus(ImGuiIO& io, Scene& scene) : my_io(io), my_scene(scene) {
 	this->activateKeyboard = false;
 	this->show_camera_menu = false;
 	this->orbitAroundOrigin = false;
+	my_scene.showAxes = false;
+	my_scene.showBoundingBox = false;
 }
 
 void Menus::DrawImguiMenus(glm::vec4& clear_color) {
@@ -47,6 +49,7 @@ void Menus::DrawMainMenu(glm::vec4& clear_color) {
 	ImGui::Begin("Main Menu");
 
 	ImGui::ColorEdit3("clear color", (float*)&clear_color);
+	
 	ImGui::Checkbox("Demo Window", &show_demo_window);
 	if (show_demo_window) {
 		ImGui::ShowDemoWindow(&show_demo_window);
@@ -61,6 +64,10 @@ void Menus::DrawMainMenu(glm::vec4& clear_color) {
 	if (show_camera_menu) {
 		DrawCameraMenu();
 	}
+	ImGui::SameLine();
+	ImGui::Checkbox("Models and World axes", &my_scene.showAxes);
+
+	ImGui::Checkbox("Bounding Box", &my_scene.showBoundingBox);
 
 	ImGui::End();
 }
@@ -74,7 +81,7 @@ void Menus::DrawModelMenu() {
 	}
 	TranformationMouse();
 	TranformationKeyboard();
-
+	
 	ImGui::End();
 }
 
@@ -156,7 +163,7 @@ void Menus::TranformationMouse() {
 void Menus::TranformationKeyboard() {
 	ImGui::Text("Keyboard Transformations");
 	ImGui::Checkbox("Activate Keyboard Transformations", &activateKeyboard);
-
+	
 	if (activateKeyboard) {
 		my_io.WantCaptureKeyboard = true;
 		auto& activeModel = my_scene.GetActiveModel();
@@ -406,21 +413,21 @@ void Menus::DrawCameraMenu() {
 		my_scene.AddCamera(camera2);
 		my_scene.SetActiveCameraIndex(my_scene.GetCameraCount() - 1);
 	}
-
+	
 	CameraPosition();
-
+		
 	ImGui::End();
 }
 
 void Menus::CameraPosition() {
-	ImGui::Text("Change Camera Position");
+	ImGui::Text("Change Camera Position");	
 	cameraCount = my_scene.GetCameraCount();
 
 	for (int i = 0; i < cameraCount; i++) {
 		ImGui::PushID(i);
 		string temp = "camera " + to_string(i + 1);
 		const char* name = temp.c_str();
-
+		
 		if (ImGui::CollapsingHeader(name)) {
 			if (my_scene.GetActiveCameraIndex() != i) {
 				if (ImGui::Button("Activate")) {
@@ -449,7 +456,7 @@ void Menus::CameraPosition() {
 				if (ImGui::SliderFloat("up z", &activeCamera.upZ, -5, 5)) {
 					activeCamera.isChanged = true;
 				}
-
+				
 				if (ImGui::SliderFloat("eye x", &activeCamera.eyeX, -5, 5)) {
 					activeCamera.isChanged = true;
 				}
@@ -542,5 +549,5 @@ void Menus::ChangeProjection() {
 		if (activeCamera.isChanged1) {
 			activeCamera.SetPerspective();
 		}
-	}
+	}	
 }
