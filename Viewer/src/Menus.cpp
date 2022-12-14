@@ -14,6 +14,8 @@ Menus::Menus(ImGuiIO& io, Scene& scene) : my_io(io), my_scene(scene) {
 	this->orbitAroundOrigin = false;
 	my_scene.showAxes = false;
 	my_scene.showBoundingBox = false;
+	my_scene.showFaceNormals = false;
+	my_scene.showVertexNormals = false;
 }
 
 void Menus::DrawImguiMenus(glm::vec4& clear_color) {
@@ -68,6 +70,10 @@ void Menus::DrawMainMenu(glm::vec4& clear_color) {
 	ImGui::Checkbox("Models and World axes", &my_scene.showAxes);
 
 	ImGui::Checkbox("Bounding Box", &my_scene.showBoundingBox);
+	ImGui::SameLine();
+	ImGui::Checkbox("Face Normals", &my_scene.showFaceNormals);
+	ImGui::SameLine();
+	ImGui::Checkbox("Vertex Normals", &my_scene.showVertexNormals);
 
 	ImGui::End();
 }
