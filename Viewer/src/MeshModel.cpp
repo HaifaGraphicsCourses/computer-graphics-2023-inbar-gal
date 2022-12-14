@@ -178,14 +178,18 @@ void MeshModel::CalculateMinMaxOfModel() {
 }
 
 void MeshModel::ChangeVectors(glm::vec3& vector, int type, glm::mat4x4 view, glm::mat4x4 projection) {
-	glm::vec4 h = glm::vec4(vector, 1);
+	glm::vec4 newV = glm::vec4(vector, 1);
 	if (type == 1) {
-		h = projection * glm::inverse(view) * worldTransformation * modelTransformation * h;
+		newV = projection * glm::inverse(view) * worldTransformation * modelTransformation * newV;
 	}
 	else if (type == 2) {
-		h = projection * glm::inverse(view) * worldTransformation * h;
+		newV = projection * glm::inverse(view) * worldTransformation * newV;
 	}
-	vector.x = h.x + 960;
-	vector.y = h.y + 540;
-	vector.z = h.z;
+	vector.x = newV.x + 960;
+	vector.y = newV.y + 540;
+	vector.z = newV.z;
+}
+
+const glm::vec3& MeshModel::GetNormal(const int index) const {
+	return normals[index];
 }

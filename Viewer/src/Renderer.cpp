@@ -337,6 +337,8 @@ void Renderer::Render(const Scene& scene) {
 
 		DrawAxes(scene);
 		DrawBoundingBox(scene);
+		DrawFaceNormals(scene);
+		DrawVertexNormals(scene);
 	}
 }
 
@@ -440,6 +442,68 @@ void Renderer::DrawBoundingBox(const Scene& scene) {
 			DrawLine(point6, point8, glm::vec3(1, 0.647, 0));
 			DrawLine(point8, point4, glm::vec3(1, 0.647, 0));
 			DrawLine(point8, point7, glm::vec3(1, 0.647, 0));
+		}
+	}
+}
+
+void Renderer::DrawFaceNormals(const Scene& scene) {
+	if (scene.showFaceNormals) {
+		for (int i = 0; i < scene.GetModelCount(); i++) {
+			glm::mat4x4 first = scene.GetActiveCamera().GetViewTransformation();
+			glm::mat4x4 second = scene.GetActiveCamera().GetProjectionTransformation();
+			MeshModel current = scene.GetModel(i).GetNewModel(first, second);
+
+			for (int i = 0; i < current.GetFacesCount(); i++) {
+				// get face, than it's vertices, than draw line between the vertices
+				Face currentF = current.GetFace(i);
+				int one = currentF.GetVertexIndex(0) - 1, two = currentF.GetVertexIndex(1) - 1, three = currentF.GetVertexIndex(2) - 1;
+				glm::vec3 v1 = current.GetVertex(one), v2 = current.GetVertex(two), v3 = current.GetVertex(three);
+				
+				glm::vec3 u = v2 - v1;
+				glm::vec3 v = v3 - v1;
+
+				glm::vec3 faceNormal = glm::vec3(0, 0, 0);
+				faceNormal.x = (u.y * v.z) - (u.z * v.y);
+				faceNormal.y = (u.z * v.x) - (u.x * v.z);
+				faceNormal.z = (u.x * v.y) - (u.y * v.x);
+
+				glm::vec3 faceCenter = glm::vec3(0, 0, 0);
+				faceCenter.x = (v1.x + v2.x + v3.x) / 3;
+				faceCenter.y = (v1.y + v2.y + v3.y) / 3;
+				faceCenter.z = (v1.z + v2.z + v3.z) / 3;
+
+				//DrawLine(faceNormal, faceNormal, glm::vec3(0, 1, 0));
+				DrawLine(faceCenter, faceCenter, glm::vec3(0, 1, 0));
+			}
+		}
+	}
+}
+
+void Renderer::DrawVertexNormals(const Scene& scene) {
+	if (scene.showVertexNormals) {
+		for (int i = 0; i < scene.GetModelCount(); i++) {
+			glm::mat4x4 first = scene.GetActiveCamera().GetViewTransformation();
+			glm::mat4x4 second = scene.GetActiveCamera().GetProjectionTransformation();
+			MeshModel current = scene.GetModel(i).GetNewModel(first, second);
+
+			for (int i = 0; i < current.GetFacesCount(); i++) {
+				// get face, than it's vertices, than draw line between the vertices
+				Face currentF = current.GetFace(i);
+				int one = currentF.GetVertexIndex(0) - 1, two = currentF.GetVertexIndex(1) - 1, three = currentF.GetVertexIndex(2) - 1;
+				glm::vec3 v1 = current.GetVertex(one), v2 = current.GetVertex(two), v3 = current.GetVertex(three);
+
+				glm::vec3 n1 = current.GetNormal(one);
+				glm::vec3 n2 = current.GetNormal(two);
+				glm::vec3 n3 = current.GetNormal(three);
+
+				current.ChangeVectors(n1, 1, first, second);
+				current.ChangeVectors(n2, 1, first, second);
+				current.ChangeVectors(n3, 1, first, second);
+				
+				DrawLine(n1, v1, glm::vec3(1, 0, 0));
+				DrawLine(n2, v2, glm::vec3(1, 0, 0));
+				DrawLine(n3, v3, glm::vec3(1, 0, 0));
+			}
 		}
 	}
 }

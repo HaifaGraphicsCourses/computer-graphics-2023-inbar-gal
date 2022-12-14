@@ -36,6 +36,8 @@ class MeshModel {
 		void CalculateMinMaxOfModel();
 		float minX, minY, minZ, maxX, maxY, maxZ;
 		void ChangeVectors(glm::vec3& vector, int type, glm::mat4x4 view, glm::mat4x4 projection);
+
+		const glm::vec3& GetNormal(const int index) const;
 	private:
 		std::vector<Face> faces;
 		std::vector<glm::vec3> vertices;
