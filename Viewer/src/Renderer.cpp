@@ -22,7 +22,7 @@ Renderer::~Renderer() {
 void Renderer::PutPixel(int i, int j, const glm::vec3& color) {
 	if (i < 0) return; if (i >= viewport_width) return;
 	if (j < 0) return; if (j >= viewport_height) return;
-	
+
 	color_buffer[INDEX(viewport_width, i, j, 0)] = color.x;
 	color_buffer[INDEX(viewport_width, i, j, 1)] = color.y;
 	color_buffer[INDEX(viewport_width, i, j, 2)] = color.z;
@@ -36,7 +36,7 @@ void Renderer::DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::v
 		PutPixel(p1.x, p1.y, color);
 		return;
 	}
-	
+
 	// calculating x difference
 	int deltaP = p2.x - p1.x;
 	// if deltaP is 0, it's a straight line up or down 
@@ -44,7 +44,7 @@ void Renderer::DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::v
 		drawX(p1, p2, color);
 		return;
 	}
-	
+
 	// calculating y difference
 	int deltaQ = p2.y - p1.y;
 	// if deltaQ is 0, it's a straight line left or right 
@@ -56,7 +56,7 @@ void Renderer::DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::v
 	/* since deltaQ / deltaP are absolute values, slopeA can be
 	* 0 < a < 1
 	* a > 1 -> in that case, x and y switch roles */
-	float slopeA = ((float)abs(deltaQ)) / ((float)abs(deltaP));	
+	float slopeA = ((float)abs(deltaQ)) / ((float)abs(deltaP));
 	if (slopeA < 1) {
 		slopeFloat(p1, p2, color, deltaQ, deltaP);
 	}
@@ -220,7 +220,7 @@ void Renderer::InitOpenglRendering() {
 	//	     | \ | <--- The exture is drawn over two triangles that stretch over the screen.
 	//	     |__\|
 	// (-1,-1)    (1,-1)
-	const GLfloat vtc[]={
+	const GLfloat vtc[] = {
 		-1, -1,
 		 1, -1,
 		-1,  1,
@@ -229,19 +229,19 @@ void Renderer::InitOpenglRendering() {
 		 1,  1
 	};
 
-	const GLfloat tex[]={
+	const GLfloat tex[] = {
 		0,0,
 		1,0,
 		0,1,
 		0,1,
 		1,0,
-		1,1};
+		1,1 };
 
 	// Makes this buffer the current one.
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 
 	// This is the opengl way for doing malloc on the gpu. 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vtc)+sizeof(tex), NULL, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vtc) + sizeof(tex), NULL, GL_STATIC_DRAW);
 
 	// memcopy vtc to buffer[0,sizeof(vtc)-1]
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vtc), vtc);
@@ -250,25 +250,25 @@ void Renderer::InitOpenglRendering() {
 	glBufferSubData(GL_ARRAY_BUFFER, sizeof(vtc), sizeof(tex), tex);
 
 	// Loads and compiles a sheder.
-	GLuint program = InitShader( "vshader.glsl", "fshader.glsl" );
+	GLuint program = InitShader("vshader.glsl", "fshader.glsl");
 
 	// Make this program the current one.
 	glUseProgram(program);
 
 	// Tells the shader where to look for the vertex position data, and the data dimensions.
-	GLint  vPosition = glGetAttribLocation( program, "vPosition" );
-	glEnableVertexAttribArray( vPosition );
-	glVertexAttribPointer( vPosition,2,GL_FLOAT,GL_FALSE,0,0 );
+	GLint  vPosition = glGetAttribLocation(program, "vPosition");
+	glEnableVertexAttribArray(vPosition);
+	glVertexAttribPointer(vPosition, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
 	// Same for texture coordinates data.
-	GLint  vTexCoord = glGetAttribLocation( program, "vTexCoord" );
-	glEnableVertexAttribArray( vTexCoord );
-	glVertexAttribPointer( vTexCoord,2,GL_FLOAT,GL_FALSE,0,(GLvoid *)sizeof(vtc) );
+	GLint  vTexCoord = glGetAttribLocation(program, "vTexCoord");
+	glEnableVertexAttribArray(vTexCoord);
+	glVertexAttribPointer(vTexCoord, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)sizeof(vtc));
 
 	//glProgramUniform1i( program, glGetUniformLocation(program, "texture"), 0 );
 
 	// Tells the shader to use GL_TEXTURE0 as the texture id.
-	glUniform1i(glGetUniformLocation(program, "texture"),0);
+	glUniform1i(glGetUniformLocation(program, "texture"), 0);
 }
 
 void Renderer::CreateOpenglBuffer() {
@@ -451,14 +451,13 @@ void Renderer::DrawFaceNormals(const Scene& scene) {
 		for (int i = 0; i < scene.GetModelCount(); i++) {
 			glm::mat4x4 first = scene.GetActiveCamera().GetViewTransformation();
 			glm::mat4x4 second = scene.GetActiveCamera().GetProjectionTransformation();
-			MeshModel current = scene.GetModel(i).GetNewModel(first, second);
+			MeshModel current = scene.GetModel(i);
 
 			for (int i = 0; i < current.GetFacesCount(); i++) {
-				// get face, than it's vertices, than draw line between the vertices
 				Face currentF = current.GetFace(i);
 				int one = currentF.GetVertexIndex(0) - 1, two = currentF.GetVertexIndex(1) - 1, three = currentF.GetVertexIndex(2) - 1;
 				glm::vec3 v1 = current.GetVertex(one), v2 = current.GetVertex(two), v3 = current.GetVertex(three);
-				
+
 				glm::vec3 u = v2 - v1;
 				glm::vec3 v = v3 - v1;
 
@@ -472,8 +471,13 @@ void Renderer::DrawFaceNormals(const Scene& scene) {
 				faceCenter.y = (v1.y + v2.y + v3.y) / 3;
 				faceCenter.z = (v1.z + v2.z + v3.z) / 3;
 
-				//DrawLine(faceNormal, faceNormal, glm::vec3(0, 1, 0));
-				DrawLine(faceCenter, faceCenter, glm::vec3(0, 1, 0));
+				faceNormal.x += faceCenter.x;
+				faceNormal.y += faceCenter.y;
+
+				current.ChangeVectors(faceNormal, 1, first, second);
+				current.ChangeVectors(faceCenter, 1, first, second);
+
+				DrawLine(faceNormal, faceCenter, glm::vec3(0, 1, 0));
 			}
 		}
 	}
@@ -484,22 +488,30 @@ void Renderer::DrawVertexNormals(const Scene& scene) {
 		for (int i = 0; i < scene.GetModelCount(); i++) {
 			glm::mat4x4 first = scene.GetActiveCamera().GetViewTransformation();
 			glm::mat4x4 second = scene.GetActiveCamera().GetProjectionTransformation();
-			MeshModel current = scene.GetModel(i).GetNewModel(first, second);
+			MeshModel current = scene.GetModel(i);
 
 			for (int i = 0; i < current.GetFacesCount(); i++) {
-				// get face, than it's vertices, than draw line between the vertices
 				Face currentF = current.GetFace(i);
 				int one = currentF.GetVertexIndex(0) - 1, two = currentF.GetVertexIndex(1) - 1, three = currentF.GetVertexIndex(2) - 1;
 				glm::vec3 v1 = current.GetVertex(one), v2 = current.GetVertex(two), v3 = current.GetVertex(three);
 
-				glm::vec3 n1 = current.GetNormal(one);
-				glm::vec3 n2 = current.GetNormal(two);
-				glm::vec3 n3 = current.GetNormal(three);
+				one = currentF.GetNormalIndex(0) - 1, two = currentF.GetNormalIndex(1) - 1, three = currentF.GetNormalIndex(2) - 1;
+				glm::vec3 n1 = current.GetNormal(one), n2 = current.GetNormal(two), n3 = current.GetNormal(three);
+
+				n1.x += v1.x;
+				n1.y += v1.y;
+				n2.x += v2.x;
+				n2.y += v2.y;
+				n3.x += v3.x;
+				n3.y += v3.y;
 
 				current.ChangeVectors(n1, 1, first, second);
 				current.ChangeVectors(n2, 1, first, second);
 				current.ChangeVectors(n3, 1, first, second);
-				
+				current.ChangeVectors(v1, 1, first, second);
+				current.ChangeVectors(v2, 1, first, second);
+				current.ChangeVectors(v3, 1, first, second);
+
 				DrawLine(n1, v1, glm::vec3(1, 0, 0));
 				DrawLine(n2, v2, glm::vec3(1, 0, 0));
 				DrawLine(n3, v3, glm::vec3(1, 0, 0));

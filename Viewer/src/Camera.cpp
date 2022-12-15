@@ -1,5 +1,6 @@
 #include "Camera.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include <GLFW/glfw3.h>
 
 Camera::Camera() {
 	eyeX = eyeY = 0;
@@ -50,7 +51,10 @@ void Camera::Reset() {
 }
 
 void Camera::Orbit() {
-
+	float radius = 10.0f;
+	float camX = static_cast<float>(sin(glfwGetTime()) * radius);
+	float camZ = static_cast<float>(cos(glfwGetTime()) * radius);
+	SetCameraLookAt(glm::vec3(camX, 0.0f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 void Camera::CallLookAt() {
@@ -61,7 +65,7 @@ void Camera::CallLookAt() {
 }
 
 void Camera::SetOrthographic() {
-	projection_transformation = glm::ortho(orthoLeft, orthoRight, orthoBottom, orthoTop, orthoNear, orthoFar);
+	projection_transformation = glm::ortho(orthoLeft, orthoRight, orthoBottom, orthoTop, 0.1f, 100.0f);
 }
 
 void Camera::SetPerspective() {

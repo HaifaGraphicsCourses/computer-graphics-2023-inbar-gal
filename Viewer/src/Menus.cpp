@@ -51,7 +51,7 @@ void Menus::DrawMainMenu(glm::vec4& clear_color) {
 	ImGui::Begin("Main Menu");
 
 	ImGui::ColorEdit3("clear color", (float*)&clear_color);
-	
+
 	ImGui::Checkbox("Demo Window", &show_demo_window);
 	if (show_demo_window) {
 		ImGui::ShowDemoWindow(&show_demo_window);
@@ -87,7 +87,7 @@ void Menus::DrawModelMenu() {
 	}
 	TranformationMouse();
 	TranformationKeyboard();
-	
+
 	ImGui::End();
 }
 
@@ -169,7 +169,7 @@ void Menus::TranformationMouse() {
 void Menus::TranformationKeyboard() {
 	ImGui::Text("Keyboard Transformations");
 	ImGui::Checkbox("Activate Keyboard Transformations", &activateKeyboard);
-	
+
 	if (activateKeyboard) {
 		my_io.WantCaptureKeyboard = true;
 		auto& activeModel = my_scene.GetActiveModel();
@@ -419,21 +419,21 @@ void Menus::DrawCameraMenu() {
 		my_scene.AddCamera(camera2);
 		my_scene.SetActiveCameraIndex(my_scene.GetCameraCount() - 1);
 	}
-	
+
 	CameraPosition();
-		
+
 	ImGui::End();
 }
 
 void Menus::CameraPosition() {
-	ImGui::Text("Change Camera Position");	
+	ImGui::Text("Change Camera Position");
 	cameraCount = my_scene.GetCameraCount();
 
 	for (int i = 0; i < cameraCount; i++) {
 		ImGui::PushID(i);
 		string temp = "camera " + to_string(i + 1);
 		const char* name = temp.c_str();
-		
+
 		if (ImGui::CollapsingHeader(name)) {
 			if (my_scene.GetActiveCameraIndex() != i) {
 				if (ImGui::Button("Activate")) {
@@ -448,7 +448,7 @@ void Menus::CameraPosition() {
 
 				ImGui::Checkbox("Orbit Around Origin", &orbitAroundOrigin);
 				if (orbitAroundOrigin) {
-
+					activeCamera.Orbit();
 				}
 				ImGui::PushItemWidth(50);
 				if (ImGui::SliderFloat("up x", &activeCamera.upX, -5, 5)) {
@@ -462,7 +462,7 @@ void Menus::CameraPosition() {
 				if (ImGui::SliderFloat("up z", &activeCamera.upZ, -5, 5)) {
 					activeCamera.isChanged = true;
 				}
-				
+
 				if (ImGui::SliderFloat("eye x", &activeCamera.eyeX, -5, 5)) {
 					activeCamera.isChanged = true;
 				}
@@ -548,12 +548,12 @@ void Menus::ChangeProjection() {
 		if (ImGui::SliderFloat("far perspective", &activeCamera.perFar, 0.2, 100)) {
 			activeCamera.isChanged1 = true;
 		}
-		if (ImGui::SliderFloat("near perspective", &activeCamera.perNear, 0.1, activeCamera.perFar)) {
+		if (ImGui::SliderFloat("near perspective", &activeCamera.perNear, 0.1, 100)) {
 			activeCamera.isChanged1 = true;
 		}
 		ImGui::PopItemWidth();
 		if (activeCamera.isChanged1) {
 			activeCamera.SetPerspective();
 		}
-	}	
+	}
 }
