@@ -95,6 +95,15 @@ Since we've added a lot of features in this assignment, and we were also asked t
 ![zoom1](zoom1.png)
 - Zoom out 
 ![zoom2](zoom2.png)
+## Orientation:
+- We have already spoken about the lookat function in relation to the positioning of the camera.
+- Nevertheless, we were asked to position the camera at (a, a, a) and orient it towards origin
+- Notice: we are still in perspective projection
+- Position: (1.11, 1.11, 1.11):
+![orient1](orient1.png)
+- Position: (-1.11, -1.11, -1.11):
+![orient2](orient2.png)
+- As was said before: each time we change the position of the camera we look at origin (and the objects in the world) from a different angle – a different perspective. And so the images, of course, show different sides of the teapot
 ## Multiple Models & Cameras:
 - Earlier in the report we put screenshots containing multiple models – all at the same screen
 - In this example, however, we added each model it's own camera
