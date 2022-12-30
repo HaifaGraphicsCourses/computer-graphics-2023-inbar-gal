@@ -19,6 +19,8 @@ Menus::Menus(ImGuiIO& io, Scene& scene) : my_io(io), my_scene(scene) {
 
 	this->show_triangle_fill_menu = false;
 	my_scene.showBoundingRectangle = false;
+	my_scene.fillMode = 0;
+	my_scene.greyScaleLevel = 50;
 }
 
 void Menus::DrawImguiMenus(glm::vec4& clear_color) {
@@ -571,14 +573,15 @@ void Menus::DrawTriangleFillMenu() {
 	
 	ImGui::Checkbox("Bounding Rectangle", &my_scene.showBoundingRectangle);
 
-	static int e = 0;
-	ImGui::RadioButton("no fill", &e, 0);
+	ImGui::RadioButton("no fill", &my_scene.fillMode, 0);
 	ImGui::SameLine();
-	ImGui::RadioButton("color buffer", &e, 1);
-
-	ImGui::RadioButton("z buffer grey", &e, 2);
+	ImGui::RadioButton("z buffer color", &my_scene.fillMode, 2);
+	
+	ImGui::RadioButton("z buffer grey", &my_scene.fillMode, 1);
 	ImGui::SameLine();
-	ImGui::RadioButton("z buffer color", &e, 3);
+	ImGui::PushItemWidth(100);
+	ImGui::SliderInt("grey scale level", &my_scene.greyScaleLevel, 1, 1000);
+	ImGui::PopItemWidth();
 
 	ImGui::End();
 }

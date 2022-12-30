@@ -193,6 +193,10 @@ void Renderer::slopeInt(const glm::ivec2& p1, const glm::ivec2& p2, const glm::v
 void Renderer::CreateBuffers(int w, int h) {
 	CreateOpenglBuffer(); //Do not remove this line.
 	color_buffer = new float[3 * w * h];
+	z_buffer = new float[3 * w * h];
+	for (int i = 0; i < 3 * w * h; i++) {
+		z_buffer[i] = -1000000.f;
+	}
 	ClearColorBuffer(glm::vec3(0.0f, 0.0f, 0.0f));
 }
 
@@ -312,6 +316,9 @@ void Renderer::ClearColorBuffer(const glm::vec3& color) {
 			PutPixel(i, j, color);
 		}
 	}
+	for (int i = 0; i < 3 * viewport_width * viewport_height; i++) {
+		z_buffer[i] = -1000000.f;
+	}
 }
 
 void Renderer::Render(const Scene& scene) {
@@ -319,24 +326,32 @@ void Renderer::Render(const Scene& scene) {
 	int half_height = viewport_height / 2;
 
 	if (scene.ModelVectorEmpty() == 1) {
-		for (int i = 0; i < scene.GetModelCount(); i++) {
-			glm::mat4x4 first = scene.GetActiveCamera().GetViewTransformation();
-			glm::mat4x4 second = scene.GetActiveCamera().GetProjectionTransformation();
-			MeshModel current = scene.GetModel(i).GetNewModel(first, second);
+		if (scene.fillMode == 0) {
+			for (int i = 0; i < scene.GetModelCount(); i++) {
+				glm::mat4x4 first = scene.GetActiveCamera().GetViewTransformation();
+				glm::mat4x4 second = scene.GetActiveCamera().GetProjectionTransformation();
+				MeshModel current = scene.GetModel(i).GetNewModel(first, second);
 
-			for (int i = 0; i < current.GetFacesCount(); i++) {
-				// get face, than it's vertices, than draw line between the vertices
-				Face currentF = current.GetFace(i);
-				int one = currentF.GetVertexIndex(0) - 1, two = currentF.GetVertexIndex(1) - 1, three = currentF.GetVertexIndex(2) - 1;
-				glm::vec3 v1 = current.GetVertex(one), v2 = current.GetVertex(two), v3 = current.GetVertex(three);
-				// glm::ivec2 trueV1(v1.x + half_width, v1.y + half_height), trueV2(v2.x + half_width, v2.y + half_height), trueV3(v3.x + half_width, v3.y + half_height);
-				glm::ivec2 trueV1(v1.x, v1.y), trueV2(v2.x, v2.y), trueV3(v3.x, v3.y);
+				for (int i = 0; i < current.GetFacesCount(); i++) {
+					// get face, than it's vertices, than draw line between the vertices
+					Face currentF = current.GetFace(i);
+					int one = currentF.GetVertexIndex(0) - 1, two = currentF.GetVertexIndex(1) - 1, three = currentF.GetVertexIndex(2) - 1;
+					glm::vec3 v1 = current.GetVertex(one), v2 = current.GetVertex(two), v3 = current.GetVertex(three);
+					// glm::ivec2 trueV1(v1.x + half_width, v1.y + half_height), trueV2(v2.x + half_width, v2.y + half_height), trueV3(v3.x + half_width, v3.y + half_height);
+					glm::ivec2 trueV1(v1.x, v1.y), trueV2(v2.x, v2.y), trueV3(v3.x, v3.y);
 
-				DrawLine(trueV1, trueV2, glm::vec3(1, 1, 1));
-				DrawLine(trueV2, trueV3, glm::vec3(1, 1, 1));
-				DrawLine(trueV3, trueV1, glm::vec3(1, 1, 1));
+					DrawLine(trueV1, trueV2, glm::vec3(1, 1, 1));
+					DrawLine(trueV2, trueV3, glm::vec3(1, 1, 1));
+					DrawLine(trueV3, trueV1, glm::vec3(1, 1, 1));
+				}
 			}
 		}
+		else if (scene.fillMode == 1) {
+			DrawZBufferGrey(scene);
+		}
+		else if (scene.fillMode == 2) {
+			DrawZBufferColor(scene);
+		}		
 
 		DrawAxes(scene);
 		DrawBoundingBox(scene);
@@ -596,4 +611,123 @@ void Renderer::CreateRandomColorArray() {
 		faceColors.push_back(glm::vec3(r, g, b));
 	}
 	faceColors.shrink_to_fit();
+}
+
+void Renderer::DrawZBufferGrey(const Scene& scene) {
+	for (int i = 0; i < scene.GetModelCount(); i++) {
+		glm::mat4x4 first = scene.GetActiveCamera().GetViewTransformation();
+		glm::mat4x4 second = scene.GetActiveCamera().GetProjectionTransformation();
+		MeshModel current = scene.GetModel(i).GetNewModel(first, second);
+
+		for (int i = 0, j = 0; i < current.GetFacesCount(); i++, j++) {
+			Face currentF = current.GetFace(i);
+			int one = currentF.GetVertexIndex(0) - 1, two = currentF.GetVertexIndex(1) - 1, three = currentF.GetVertexIndex(2) - 1;
+			glm::vec3 v1 = current.GetVertex(one), v2 = current.GetVertex(two), v3 = current.GetVertex(three);
+
+			int minXColor = min(min(v1.x, v2.x), v3.x);
+			int minYColor = min(min(v1.y, v2.y), v3.y);
+			int maxXColor = max(max(v1.x, v2.x), v3.x);
+			int maxYColor = max(max(v1.y, v2.y), v3.y);
+
+			for (int c1 = minXColor; c1 < maxXColor; c1++) {
+				for (int c2 = minYColor; c2 < maxYColor; c2++) {
+					if (((c1 - v1.x) * (v2.y - v1.y) - (c2 - v1.y) * (v2.x - v1.x) >= 0) &&
+						(c1 - v2.x) * (v3.y - v2.y) - (c2 - v2.y) * (v3.x - v2.x) >= 0 &&
+						(c1 - v3.x) * (v1.y - v3.y) - (c2 - v3.y) * (v1.x - v3.x) >= 0) {
+						float currentZ1 = v1.z, currentZ2 = v2.z, currentZ3 = v3.z;
+						float faceArea, area12, area23, area31, depth;
+
+						area12 = AreaOfTriangle(v2.x, v2.y, v1.x, v1.y, c1, c2);
+						area23 = AreaOfTriangle(v2.x, v2.y, v3.x, v3.y, c1, c2);
+						area31 = AreaOfTriangle(v1.x, v1.y, v3.x, v3.y, c1, c2);
+						faceArea = AreaOfTriangle(v1.x, v1.y, v2.x, v2.y, v3.x, v3.y);
+
+						depth = (area12 / faceArea) * currentZ3 + (area23 / faceArea) * currentZ1 + (area31 / faceArea) * currentZ2;
+						PutPixelpolygon(c1, c2, glm::vec3(0.4f, 0.4f, 0.4f), depth, 1, scene.greyScaleLevel);
+					}
+				}
+			}
+		}
+	}
+}
+
+void Renderer::DrawZBufferColor(const Scene& scene) {
+	for (int i = 0; i < scene.GetModelCount(); i++) {
+		glm::mat4x4 first = scene.GetActiveCamera().GetViewTransformation();
+		glm::mat4x4 second = scene.GetActiveCamera().GetProjectionTransformation();
+		MeshModel current = scene.GetModel(i).GetNewModel(first, second);
+
+		for (int i = 0, j = 0; i < current.GetFacesCount(); i++, j++) {
+			Face currentF = current.GetFace(i);
+			int one = currentF.GetVertexIndex(0) - 1, two = currentF.GetVertexIndex(1) - 1, three = currentF.GetVertexIndex(2) - 1;
+			glm::vec3 v1 = current.GetVertex(one), v2 = current.GetVertex(two), v3 = current.GetVertex(three);
+			
+			int minXColor = min(min(v1.x, v2.x), v3.x);
+			int minYColor = min(min(v1.y, v2.y), v3.y);
+			int maxXColor = max(max(v1.x, v2.x), v3.x);
+			int maxYColor = max(max(v1.y, v2.y), v3.y);
+
+			if (j >= 256) {
+				j = 0;
+			}
+
+			glm::vec3 color = faceColors[j];
+
+			for (int c1 = minXColor; c1 < maxXColor; c1++) {
+				for (int c2 = minYColor; c2 < maxYColor; c2++) {
+					if (((c1 - v1.x) * (v2.y - v1.y) - (c2 - v1.y) * (v2.x - v1.x) >= 0) &&
+						(c1 - v2.x) * (v3.y - v2.y) - (c2 - v2.y) * (v3.x - v2.x) >= 0 &&
+						(c1 - v3.x) * (v1.y - v3.y) - (c2 - v3.y) * (v1.x - v3.x) >= 0) {
+						float currentZ1 = v1.z, currentZ2 = v2.z, currentZ3 = v3.z;
+						float faceArea, area12, area23, area31, depth;
+
+						area12 = AreaOfTriangle(v2.x, v2.y, v1.x, v1.y, c1, c2);
+						area23 = AreaOfTriangle(v2.x, v2.y, v3.x, v3.y, c1, c2);
+						area31 = AreaOfTriangle(v1.x, v1.y, v3.x, v3.y, c1, c2);
+						faceArea = AreaOfTriangle(v1.x, v1.y, v2.x, v2.y, v3.x, v3.y);
+
+						depth = (area12 / faceArea) * currentZ3 + (area23 / faceArea) * currentZ1 + (area31 / faceArea) * currentZ2;
+						PutPixelpolygon(c1, c2, color, depth, 2, 0);
+					}
+				}
+			}
+		}
+	}
+}
+
+float Renderer::AreaOfTriangle(float x0, float y0, float x1, float y1, float x2, float y2) {
+	float dArea = (x0 * (y1 - y2) + x1 * (y2 - y0) + x2 * (y0 - y1)) / 2.0;
+
+	if (dArea > 0.0) {
+		return dArea;
+	}
+	else {
+		return -dArea;
+	}
+}
+
+void Renderer::PutPixelpolygon(const int i, const int j, const glm::vec3& color, float z, int mode, int gs) {
+	if (i < 0) return;
+	if (i >= viewport_width) return;
+	if (j < 0) return;
+	if (j >= viewport_height) return;
+
+	if (z >= z_buffer[INDEX(viewport_width, i, j, 0)] && mode == 2) {
+		color_buffer[INDEX(viewport_width, i, j, 0)] = color.r;
+		color_buffer[INDEX(viewport_width, i, j, 1)] = color.g;
+		color_buffer[INDEX(viewport_width, i, j, 2)] = color.b;
+		
+		z_buffer[INDEX(viewport_width, i, j, 0)] = z;
+		z_buffer[INDEX(viewport_width, i, j, 1)] = z;
+		z_buffer[INDEX(viewport_width, i, j, 2)] = z;
+	}
+	if (z >= z_buffer[INDEX(viewport_width, i, j, 0)] && mode == 1) {
+		color_buffer[INDEX(viewport_width, i, j, 0)] = color.r + z / gs;
+		color_buffer[INDEX(viewport_width, i, j, 1)] = color.g + z / gs;
+		color_buffer[INDEX(viewport_width, i, j, 2)] = color.b + z / gs;
+		
+		z_buffer[INDEX(viewport_width, i, j, 0)] = z;
+		z_buffer[INDEX(viewport_width, i, j, 1)] = z;
+		z_buffer[INDEX(viewport_width, i, j, 2)] = z;
+	}	
 }

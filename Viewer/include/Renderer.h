@@ -29,6 +29,11 @@ class Renderer {
 		void CreateRandomColorArray();
 		std::vector<glm::vec3> faceColors;
 
+		void DrawZBufferGrey(const Scene& scene);
+		void DrawZBufferColor(const Scene& scene);
+		float AreaOfTriangle(float x0, float y0, float x1, float y1, float x2, float y2);
+		void PutPixelpolygon(const int i, const int j, const glm::vec3& color, float z, int mode, int gs);
+
 		void CreateBuffers(int w, int h);
 		void CreateOpenglBuffer();
 		void InitOpenglRendering();
@@ -38,4 +43,5 @@ class Renderer {
 		int viewport_height;
 		GLuint gl_screen_tex;
 		GLuint gl_screen_vtc;
+		float* z_buffer;
 };
