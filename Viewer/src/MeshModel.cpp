@@ -1,8 +1,8 @@
 #include "MeshModel.h"
 #include <iostream>
 
-MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices,
-	std::vector<glm::vec3> normals, const std::string& model_name) :
+MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices, 
+					 std::vector<glm::vec3> normals, const std::string& model_name) : 
 	faces(faces), vertices(vertices), normals(normals),
 	modelTransformation(1.0f), worldTransformation(1.0f),
 	modelRotation(1.0f), worldRotation(1.0f),
@@ -29,7 +29,7 @@ MeshModel::~MeshModel() {
 
 }
 
-MeshModel::MeshModel(const MeshModel& other) :
+MeshModel::MeshModel(const MeshModel& other) : 
 	faces(other.faces), vertices(other.vertices), normals(other.normals),
 	model_name(other.model_name),
 	modelTransformation(other.modelTransformation), worldTransformation(other.worldTransformation) {
@@ -103,7 +103,7 @@ glm::mat4 MeshModel::CreateRotation(int type, float degree) {
 	float pi = acos(-1);
 	float cost = cos(degree * pi / 180.0);
 	float sint = sin(degree * pi / 180.0);
-
+	
 	if (type == 1) {
 		return glm::mat4(
 			1, 0, 0, 0,

@@ -33,6 +33,7 @@ class Scene {
 		bool showBoundingBox;
 		bool showFaceNormals;
 		bool showVertexNormals;
+		bool showBoundingRectangle;
 	private:
 		vector<shared_ptr<MeshModel>> mesh_models;
 		vector<shared_ptr<Camera>> cameras;

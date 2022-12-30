@@ -32,7 +32,7 @@ std::shared_ptr<MeshModel> Utils::LoadMeshModel(const std::string& filePath) {
 		// get line
 		std::string curLine;
 		std::getline(ifile, curLine);
-		cout << curLine << endl;
+		//cout << curLine << endl;
 
 		// read the type of the line
 		std::istringstream issLine(curLine);

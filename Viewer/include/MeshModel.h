@@ -11,7 +11,7 @@ class MeshModel {
 
 		const Face& GetFace(int index) const;
 		int GetFacesCount() const;
-
+		
 		const std::string& GetModelName() const;
 
 		const glm::vec3& GetVertex(const int index) const;
@@ -44,9 +44,9 @@ class MeshModel {
 		std::vector<glm::vec3> vertices;
 		std::vector<glm::vec3> normals;
 		std::string model_name;
-
+		
 		glm::mat4 modelTransformation, worldTransformation;
 		glm::mat4 modelRotation, worldRotation;
-		glm::mat4 modelScalingMat, worldScalingMat;
+		glm::mat4 modelScalingMat, worldScalingMat; 
 		glm::mat4 modelTranslation, worldTranslation;
 };

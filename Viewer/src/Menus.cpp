@@ -16,6 +16,9 @@ Menus::Menus(ImGuiIO& io, Scene& scene) : my_io(io), my_scene(scene) {
 	my_scene.showBoundingBox = false;
 	my_scene.showFaceNormals = false;
 	my_scene.showVertexNormals = false;
+
+	this->show_triangle_fill_menu = false;
+	my_scene.showBoundingRectangle = false;
 }
 
 void Menus::DrawImguiMenus(glm::vec4& clear_color) {
@@ -51,8 +54,8 @@ void Menus::DrawMainMenu(glm::vec4& clear_color) {
 	ImGui::Begin("Main Menu");
 
 	ImGui::ColorEdit3("clear color", (float*)&clear_color);
-
-	ImGui::Checkbox("Demo Window", &show_demo_window);
+	
+	ImGui::Checkbox("Demo Window   ", &show_demo_window);
 	if (show_demo_window) {
 		ImGui::ShowDemoWindow(&show_demo_window);
 	}
@@ -62,18 +65,23 @@ void Menus::DrawMainMenu(glm::vec4& clear_color) {
 		DrawModelMenu();
 	}
 
-	ImGui::Checkbox("Camera Menu", &show_camera_menu);
+	ImGui::Checkbox("Camera Menu   ", &show_camera_menu);
 	if (show_camera_menu) {
 		DrawCameraMenu();
 	}
 	ImGui::SameLine();
 	ImGui::Checkbox("Models and World axes", &my_scene.showAxes);
 
-	ImGui::Checkbox("Bounding Box", &my_scene.showBoundingBox);
+	ImGui::Checkbox("Bounding Box  ", &my_scene.showBoundingBox);
 	ImGui::SameLine();
 	ImGui::Checkbox("Face Normals", &my_scene.showFaceNormals);
-	ImGui::SameLine();
+	
 	ImGui::Checkbox("Vertex Normals", &my_scene.showVertexNormals);
+	ImGui::SameLine();
+	ImGui::Checkbox("Triangle Fill Menu", &show_triangle_fill_menu);
+	if (show_triangle_fill_menu) {
+		DrawTriangleFillMenu();
+	}
 
 	ImGui::End();
 }
@@ -87,7 +95,7 @@ void Menus::DrawModelMenu() {
 	}
 	TranformationMouse();
 	TranformationKeyboard();
-
+	
 	ImGui::End();
 }
 
@@ -169,7 +177,7 @@ void Menus::TranformationMouse() {
 void Menus::TranformationKeyboard() {
 	ImGui::Text("Keyboard Transformations");
 	ImGui::Checkbox("Activate Keyboard Transformations", &activateKeyboard);
-
+	
 	if (activateKeyboard) {
 		my_io.WantCaptureKeyboard = true;
 		auto& activeModel = my_scene.GetActiveModel();
@@ -419,21 +427,21 @@ void Menus::DrawCameraMenu() {
 		my_scene.AddCamera(camera2);
 		my_scene.SetActiveCameraIndex(my_scene.GetCameraCount() - 1);
 	}
-
+	
 	CameraPosition();
-
+		
 	ImGui::End();
 }
 
 void Menus::CameraPosition() {
-	ImGui::Text("Change Camera Position");
+	ImGui::Text("Change Camera Position");	
 	cameraCount = my_scene.GetCameraCount();
 
 	for (int i = 0; i < cameraCount; i++) {
 		ImGui::PushID(i);
 		string temp = "camera " + to_string(i + 1);
 		const char* name = temp.c_str();
-
+		
 		if (ImGui::CollapsingHeader(name)) {
 			if (my_scene.GetActiveCameraIndex() != i) {
 				if (ImGui::Button("Activate")) {
@@ -462,7 +470,7 @@ void Menus::CameraPosition() {
 				if (ImGui::SliderFloat("up z", &activeCamera.upZ, -5, 5)) {
 					activeCamera.isChanged = true;
 				}
-
+				
 				if (ImGui::SliderFloat("eye x", &activeCamera.eyeX, -5, 5)) {
 					activeCamera.isChanged = true;
 				}
@@ -555,5 +563,22 @@ void Menus::ChangeProjection() {
 		if (activeCamera.isChanged1) {
 			activeCamera.SetPerspective();
 		}
-	}
+	}	
+}
+
+void Menus::DrawTriangleFillMenu() {
+	ImGui::Begin("Triangle Fill Menu");
+	
+	ImGui::Checkbox("Bounding Rectangle", &my_scene.showBoundingRectangle);
+
+	static int e = 0;
+	ImGui::RadioButton("no fill", &e, 0);
+	ImGui::SameLine();
+	ImGui::RadioButton("color buffer", &e, 1);
+
+	ImGui::RadioButton("z buffer grey", &e, 2);
+	ImGui::SameLine();
+	ImGui::RadioButton("z buffer color", &e, 3);
+
+	ImGui::End();
 }

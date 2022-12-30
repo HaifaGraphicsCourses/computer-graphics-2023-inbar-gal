@@ -25,6 +25,10 @@ class Renderer {
 		void DrawFaceNormals(const Scene& scene);
 		void DrawVertexNormals(const Scene& scene);
 
+		void DrawBoundingRectangle(const Scene& scene);
+		void CreateRandomColorArray();
+		std::vector<glm::vec3> faceColors;
+
 		void CreateBuffers(int w, int h);
 		void CreateOpenglBuffer();
 		void InitOpenglRendering();
