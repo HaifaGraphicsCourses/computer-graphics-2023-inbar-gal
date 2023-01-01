@@ -20,6 +20,7 @@ Renderer::Renderer(int viewport_width, int viewport_height) :
 
 Renderer::~Renderer() {
 	delete[] color_buffer;
+	delete[] z_buffer;
 }
 
 void Renderer::PutPixel(int i, int j, const glm::vec3& color) {
@@ -349,7 +350,7 @@ void Renderer::Render(const Scene& scene) {
 		else if (scene.fillMode == 1) {
 			DrawZBufferGrey(scene);
 		}
-		else if (scene.fillMode == 2) {
+		else if (scene.fillMode == 2 || scene.fillMode == 3) {
 			DrawZBufferColor(scene);
 		}		
 
@@ -629,8 +630,8 @@ void Renderer::DrawZBufferGrey(const Scene& scene) {
 			int maxXColor = max(max(v1.x, v2.x), v3.x);
 			int maxYColor = max(max(v1.y, v2.y), v3.y);
 
-			for (int c1 = minXColor; c1 < maxXColor; c1++) {
-				for (int c2 = minYColor; c2 < maxYColor; c2++) {
+			for (int c1 = minXColor; c1 <= maxXColor; c1++) {
+				for (int c2 = minYColor; c2 <= maxYColor; c2++) {
 					if (((c1 - v1.x) * (v2.y - v1.y) - (c2 - v1.y) * (v2.x - v1.x) >= 0) &&
 						(c1 - v2.x) * (v3.y - v2.y) - (c2 - v2.y) * (v3.x - v2.x) >= 0 &&
 						(c1 - v3.x) * (v1.y - v3.y) - (c2 - v3.y) * (v1.x - v3.x) >= 0) {
@@ -643,7 +644,7 @@ void Renderer::DrawZBufferGrey(const Scene& scene) {
 						faceArea = AreaOfTriangle(v1.x, v1.y, v2.x, v2.y, v3.x, v3.y);
 
 						depth = (area12 / faceArea) * currentZ3 + (area23 / faceArea) * currentZ1 + (area31 / faceArea) * currentZ2;
-						PutPixelpolygon(c1, c2, glm::vec3(0.4f, 0.4f, 0.4f), depth, 1, scene.greyScaleLevel);
+						PutPixelpolygon(c1, c2, glm::vec3(0.5, 0.5, 0.5), depth, 1, scene.greyScaleLevel);
 					}
 				}
 			}
@@ -673,8 +674,8 @@ void Renderer::DrawZBufferColor(const Scene& scene) {
 
 			glm::vec3 color = faceColors[j];
 
-			for (int c1 = minXColor; c1 < maxXColor; c1++) {
-				for (int c2 = minYColor; c2 < maxYColor; c2++) {
+			for (int c1 = minXColor; c1 <= maxXColor; c1++) {
+				for (int c2 = minYColor; c2 <= maxYColor; c2++) {
 					if (((c1 - v1.x) * (v2.y - v1.y) - (c2 - v1.y) * (v2.x - v1.x) >= 0) &&
 						(c1 - v2.x) * (v3.y - v2.y) - (c2 - v2.y) * (v3.x - v2.x) >= 0 &&
 						(c1 - v3.x) * (v1.y - v3.y) - (c2 - v3.y) * (v1.x - v3.x) >= 0) {
@@ -687,7 +688,12 @@ void Renderer::DrawZBufferColor(const Scene& scene) {
 						faceArea = AreaOfTriangle(v1.x, v1.y, v2.x, v2.y, v3.x, v3.y);
 
 						depth = (area12 / faceArea) * currentZ3 + (area23 / faceArea) * currentZ1 + (area31 / faceArea) * currentZ2;
-						PutPixelpolygon(c1, c2, color, depth, 2, 0);
+						if (scene.fillMode == 2) {
+							PutPixelpolygon(c1, c2, color, depth, 2, 0);
+						}
+						else if (scene.fillMode == 3) {
+							DrawLine(glm::ivec2(c1, c2), glm::ivec2(c1, c2), scene.clear_color);
+						}
 					}
 				}
 			}
@@ -706,7 +712,7 @@ float Renderer::AreaOfTriangle(float x0, float y0, float x1, float y1, float x2,
 	}
 }
 
-void Renderer::PutPixelpolygon(const int i, const int j, const glm::vec3& color, float z, int mode, int gs) {
+void Renderer::PutPixelpolygon(const int i, const int j, const glm::vec3& color, float z, int mode, float gs) {
 	if (i < 0) return;
 	if (i >= viewport_width) return;
 	if (j < 0) return;

@@ -36,7 +36,8 @@ class Scene {
 		bool showBoundingRectangle;
 
 		int fillMode;
-		int greyScaleLevel;
+		float greyScaleLevel;
+		glm::vec4 clear_color = glm::vec4(1.0f, 1.0f, 1.0f, 1.00f);
 	private:
 		vector<shared_ptr<MeshModel>> mesh_models;
 		vector<shared_ptr<Camera>> cameras;

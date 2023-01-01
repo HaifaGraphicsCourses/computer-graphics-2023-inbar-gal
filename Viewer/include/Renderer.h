@@ -32,7 +32,7 @@ class Renderer {
 		void DrawZBufferGrey(const Scene& scene);
 		void DrawZBufferColor(const Scene& scene);
 		float AreaOfTriangle(float x0, float y0, float x1, float y1, float x2, float y2);
-		void PutPixelpolygon(const int i, const int j, const glm::vec3& color, float z, int mode, int gs);
+		void PutPixelpolygon(const int i, const int j, const glm::vec3& color, float z, int mode, float gs);
 
 		void CreateBuffers(int w, int h);
 		void CreateOpenglBuffer();

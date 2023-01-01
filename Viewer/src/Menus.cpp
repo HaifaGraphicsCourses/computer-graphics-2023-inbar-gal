@@ -580,7 +580,13 @@ void Menus::DrawTriangleFillMenu() {
 	ImGui::RadioButton("z buffer grey", &my_scene.fillMode, 1);
 	ImGui::SameLine();
 	ImGui::PushItemWidth(100);
-	ImGui::SliderInt("grey scale level", &my_scene.greyScaleLevel, 1, 1000);
+	ImGui::SliderFloat("grey scale level", &my_scene.greyScaleLevel, 1, 50);
+	ImGui::PopItemWidth();
+
+	ImGui::RadioButton("single color", &my_scene.fillMode, 3);
+	ImGui::SameLine();
+	ImGui::PushItemWidth(100);
+	ImGui::ColorEdit3("clear color", (float*)&my_scene.clear_color);
 	ImGui::PopItemWidth();
 
 	ImGui::End();
