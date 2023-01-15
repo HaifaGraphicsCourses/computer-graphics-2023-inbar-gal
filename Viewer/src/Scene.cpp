@@ -62,3 +62,27 @@ int Scene::ModelVectorEmpty() const {
 		return 1;
 	}
 }
+
+void Scene::AddLight(const shared_ptr<PointLight>& light) {
+	lights.push_back(light);
+}
+
+int Scene::GetLightCount() const {
+	return lights.size();
+}
+
+PointLight& Scene::GetLight(int index) const {
+	return *lights[index];
+}
+
+PointLight& Scene::GetActiveLight() const {
+	return *lights[active_light_index];
+}
+
+void Scene::SetActiveLightIndex(int index) {
+	active_light_index = index;
+}
+
+int Scene::GetActiveLightIndex() const {
+	return active_light_index;
+}

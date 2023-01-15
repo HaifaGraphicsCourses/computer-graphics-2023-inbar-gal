@@ -5,6 +5,7 @@
 
 #include "Camera.h"
 #include "MeshModel.h"
+#include "PointLight.h"
 
 using namespace std;
 
@@ -38,10 +39,19 @@ class Scene {
 		int fillMode;
 		float greyScaleLevel;
 		glm::vec4 clear_color = glm::vec4(1.0f, 1.0f, 1.0f, 1.00f);
+
+		void AddLight(const shared_ptr<PointLight>& light);
+		int GetLightCount() const;
+		PointLight& GetLight(int index) const;
+		PointLight& GetActiveLight() const;
+		void SetActiveLightIndex(int index);
+		int GetActiveLightIndex() const;
 	private:
 		vector<shared_ptr<MeshModel>> mesh_models;
 		vector<shared_ptr<Camera>> cameras;
+		vector<shared_ptr<PointLight>> lights;
 
 		int active_camera_index;
 		int active_model_index;
+		int active_light_index;
 };
