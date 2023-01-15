@@ -5,6 +5,7 @@
 
 int Menus::modelsCount = 0;
 int Menus::cameraCount = 0;
+int Menus::lightCount = 0;
 
 Menus::Menus(ImGuiIO& io, Scene& scene) : my_io(io), my_scene(scene) {
 	this->show_demo_window = false;
@@ -21,6 +22,8 @@ Menus::Menus(ImGuiIO& io, Scene& scene) : my_io(io), my_scene(scene) {
 	my_scene.showBoundingRectangle = false;
 	my_scene.fillMode = 0;
 	my_scene.greyScaleLevel = 50;
+
+	this->show_light_menu = false;
 }
 
 void Menus::DrawImguiMenus(glm::vec4& clear_color) {
@@ -83,6 +86,11 @@ void Menus::DrawMainMenu(glm::vec4& clear_color) {
 	ImGui::Checkbox("Triangle Fill Menu", &show_triangle_fill_menu);
 	if (show_triangle_fill_menu) {
 		DrawTriangleFillMenu();
+	}
+
+	ImGui::Checkbox("Lights Menu", &show_light_menu);
+	if (show_light_menu) {
+		DrawLightMenu();
 	}
 
 	ImGui::End();
@@ -170,6 +178,10 @@ void Menus::TranformationMouse() {
 					activeModel.ChangeModel();
 				}
 				ImGui::PopItemWidth();
+
+				ImGui::ColorEdit3("ambient", (float*)&activeModel.ambientLight);
+				ImGui::ColorEdit3("diffuse", (float*)&activeModel.diffuseLight);
+				ImGui::ColorEdit3("specular", (float*)&activeModel.specularLight);
 			}
 		}
 		ImGui::PopID();
@@ -590,4 +602,74 @@ void Menus::DrawTriangleFillMenu() {
 	ImGui::PopItemWidth();
 
 	ImGui::End();
+}
+
+void Menus::DrawLightMenu() {
+	ImGui::Begin("Light Menu");
+
+	if (ImGui::Button("Add Another Light")) {
+		std::shared_ptr<PointLight> light2(new PointLight());
+		my_scene.AddLight(light2);
+		my_scene.SetActiveLightIndex(my_scene.GetLightCount() - 1);
+	}
+
+	Settings();
+
+	ImGui::End();
+}
+
+void Menus::Settings() {
+	lightCount = my_scene.GetLightCount();
+
+	for (int i = 0; i < lightCount; i++) {
+		ImGui::PushID(i);
+		string temp = "light " + to_string(i + 1);
+		const char* name = temp.c_str();
+		
+		if (ImGui::CollapsingHeader(name)) {
+			if (my_scene.GetActiveLightIndex() != i) {
+				if (ImGui::Button("Activate")) {
+					my_scene.SetActiveLightIndex(i);
+				}
+			}
+			else {
+				auto& activeLight = my_scene.GetActiveLight();
+				if (ImGui::Button("Reset Light Position")) {
+					activeLight.ResetPosition();
+				}
+				ImGui::PushItemWidth(200);
+				if (ImGui::SliderFloat("x", &activeLight.x, (-my_io.DisplaySize.x / 2), (my_io.DisplaySize.x / 2))) {
+					activeLight.isChangedP = true;
+				}
+				if (ImGui::SliderFloat("y", &activeLight.y, (-my_io.DisplaySize.y / 2), (my_io.DisplaySize.y / 2))) {
+					activeLight.isChangedP = true;
+				}
+				if (ImGui::SliderFloat("z", &activeLight.z, 0, 1000)) {
+					activeLight.isChangedP = true;
+				}
+				if (activeLight.isChangedP) {
+					activeLight.ChangePosition();
+				}
+				ImGui::PopItemWidth();
+
+				ImGui::RadioButton("ambient", &activeLight.lightType, 0);
+				ImGui::SameLine();
+				ImGui::RadioButton("diffuse", &activeLight.lightType, 1);
+				ImGui::SameLine();
+				ImGui::RadioButton("specular", &activeLight.lightType, 2);
+
+				ImGui::ColorEdit3("ambient", (float*)&activeLight.ambientLight);
+				ImGui::ColorEdit3("diffuse", (float*)&activeLight.diffuseLight);
+				ImGui::ColorEdit3("specular", (float*)&activeLight.specularLight);
+
+				ImGui::RadioButton("flat", &activeLight.shading, 0);
+				ImGui::SameLine();
+				ImGui::RadioButton("gouraud", &activeLight.shading, 1);
+				ImGui::SameLine();
+				ImGui::RadioButton("phong", &activeLight.shading, 2);
+			}
+		}
+		ImGui::PopID();
+	}
+
 }

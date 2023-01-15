@@ -693,7 +693,7 @@ void Renderer::DrawZBufferColor(const Scene& scene) {
 						}
 						else if (scene.fillMode == 3) {
 							DrawLine(glm::ivec2(c1, c2), glm::ivec2(c1, c2), scene.clear_color);
-						}
+						}						
 					}
 				}
 			}

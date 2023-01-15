@@ -22,6 +22,9 @@ class Menus {
 		void ChangeProjection();
 
 		void DrawTriangleFillMenu();
+
+		void DrawLightMenu();
+		void Settings();
 	private:
 		ImGuiIO& my_io;
 		Scene& my_scene;
@@ -32,8 +35,10 @@ class Menus {
 		bool show_camera_menu;
 		bool orbitAroundOrigin;
 		bool show_triangle_fill_menu;
+		bool show_light_menu;
 		
 		static int modelsCount;	
 		static int cameraCount;
+		static int lightCount;
 };
 

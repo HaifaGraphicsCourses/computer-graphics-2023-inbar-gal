@@ -11,6 +11,7 @@
 #include "Renderer.h"
 #include "Scene.h"
 #include "Menus.h"
+#include "Utils.h"
 
 /**
  * Fields
@@ -54,6 +55,10 @@ int main(int argc, char **argv) {
 	std::shared_ptr<Camera> camera1(new Camera());
 	scene.AddCamera(camera1);
 	scene.SetActiveCameraIndex(scene.GetCameraCount() - 1);
+
+	std::shared_ptr<PointLight> light1(new PointLight());
+	scene.AddLight(light1);
+	scene.SetActiveLightIndex(scene.GetLightCount() - 1);
 
 	glfwSetScrollCallback(window, ScrollCallback);
     while (!glfwWindowShouldClose(window)) {
