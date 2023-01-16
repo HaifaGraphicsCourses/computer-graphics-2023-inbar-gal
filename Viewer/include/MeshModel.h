@@ -39,10 +39,6 @@ class MeshModel {
 
 		const glm::vec3& GetNormal(const int index) const;
 		void print(glm::mat4x4 view, glm::mat4x4 projection);
-
-		glm::vec4 ambientLight = glm::vec4(0.0f, 0.0f, 0.0f, 0.00f);
-		glm::vec4 diffuseLight = glm::vec4(0.0f, 0.0f, 0.0f, 0.00f);
-		glm::vec4 specularLight = glm::vec4(0.0f, 0.0f, 0.0f, 0.00f);
 	private:
 		std::vector<Face> faces;
 		std::vector<glm::vec3> vertices;

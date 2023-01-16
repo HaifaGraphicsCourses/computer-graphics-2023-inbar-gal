@@ -653,6 +653,10 @@ void Renderer::DrawZBufferGrey(const Scene& scene) {
 }
 
 void Renderer::DrawZBufferColor(const Scene& scene) {
+	PointLight activeLight = scene.GetActiveLight();
+	glm::vec3 ambient, diffuse, specular, phong;
+	float x, y, z;
+
 	for (int i = 0; i < scene.GetModelCount(); i++) {
 		glm::mat4x4 first = scene.GetActiveCamera().GetViewTransformation();
 		glm::mat4x4 second = scene.GetActiveCamera().GetProjectionTransformation();
@@ -662,6 +666,8 @@ void Renderer::DrawZBufferColor(const Scene& scene) {
 			Face currentF = current.GetFace(i);
 			int one = currentF.GetVertexIndex(0) - 1, two = currentF.GetVertexIndex(1) - 1, three = currentF.GetVertexIndex(2) - 1;
 			glm::vec3 v1 = current.GetVertex(one), v2 = current.GetVertex(two), v3 = current.GetVertex(three);
+			one = currentF.GetNormalIndex(0) - 1, two = currentF.GetNormalIndex(1) - 1, three = currentF.GetNormalIndex(2) - 1;
+			glm::vec3 n1 = current.GetNormal(one), n2 = current.GetNormal(two), n3 = current.GetNormal(three);
 			
 			int minXColor = min(min(v1.x, v2.x), v3.x);
 			int minYColor = min(min(v1.y, v2.y), v3.y);
@@ -689,7 +695,34 @@ void Renderer::DrawZBufferColor(const Scene& scene) {
 
 						depth = (area12 / faceArea) * currentZ3 + (area23 / faceArea) * currentZ1 + (area31 / faceArea) * currentZ2;
 						if (scene.fillMode == 2) {
-							PutPixelpolygon(c1, c2, color, depth, 2, 0);
+							// color of light x color of model
+							x = activeLight.LambientLight.x * activeLight.MambientLight.x;
+							y = activeLight.LambientLight.y * activeLight.MambientLight.y;
+							z = activeLight.LambientLight.z * activeLight.MambientLight.z;
+							ambient = glm::vec3(x, y, z);
+
+							// direction of light - vector between light position to vertex
+							glm::vec3 lightVector1 = glm::normalize(activeLight.position - v1);
+							glm::vec3 lightVector2 = glm::normalize(activeLight.position - v2);
+							glm::vec3 lightVector3 = glm::normalize(activeLight.position - v3);
+							// color as cross product between light vector to normal
+							float a = glm::dot(lightVector1, n1);
+							float b = glm::dot(lightVector2, n2);
+							float c = glm::dot(lightVector3, n3);
+							float d = (a + b + c) / 3.0;
+							x = activeLight.LdiffuseLight.x * d * activeLight.MdiffuseLight.x;
+							y = activeLight.LdiffuseLight.y * d * activeLight.MdiffuseLight.y;
+							z = activeLight.LdiffuseLight.z * d * activeLight.MdiffuseLight.z;
+							diffuse = glm::vec3(x, y, z);
+
+							// direction of opposite angle - return light x direction of camera ^ alpha-shine
+
+							if (activeLight.lightType == 0) {								
+								PutPixelpolygon(c1, c2, ambient, depth, 2, 0);
+							}
+							else if (activeLight.lightType == 1) {
+								PutPixelpolygon(c1, c2, diffuse, depth, 2, 0);
+							}
 						}
 						else if (scene.fillMode == 3) {
 							DrawLine(glm::ivec2(c1, c2), glm::ivec2(c1, c2), scene.clear_color);

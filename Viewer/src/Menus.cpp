@@ -178,10 +178,6 @@ void Menus::TranformationMouse() {
 					activeModel.ChangeModel();
 				}
 				ImGui::PopItemWidth();
-
-				ImGui::ColorEdit3("ambient", (float*)&activeModel.ambientLight);
-				ImGui::ColorEdit3("diffuse", (float*)&activeModel.diffuseLight);
-				ImGui::ColorEdit3("specular", (float*)&activeModel.specularLight);
 			}
 		}
 		ImGui::PopID();
@@ -638,13 +634,13 @@ void Menus::Settings() {
 					activeLight.ResetPosition();
 				}
 				ImGui::PushItemWidth(200);
-				if (ImGui::SliderFloat("x", &activeLight.x, (-my_io.DisplaySize.x / 2), (my_io.DisplaySize.x / 2))) {
+				if (ImGui::SliderFloat("x", &activeLight.x, (-my_io.DisplaySize.x), (my_io.DisplaySize.x))) {
 					activeLight.isChangedP = true;
 				}
-				if (ImGui::SliderFloat("y", &activeLight.y, (-my_io.DisplaySize.y / 2), (my_io.DisplaySize.y / 2))) {
+				if (ImGui::SliderFloat("y", &activeLight.y, (-my_io.DisplaySize.y), (my_io.DisplaySize.y))) {
 					activeLight.isChangedP = true;
 				}
-				if (ImGui::SliderFloat("z", &activeLight.z, 0, 1000)) {
+				if (ImGui::SliderFloat("z", &activeLight.z, -1000, 1000)) {
 					activeLight.isChangedP = true;
 				}
 				if (activeLight.isChangedP) {
@@ -657,10 +653,17 @@ void Menus::Settings() {
 				ImGui::RadioButton("diffuse", &activeLight.lightType, 1);
 				ImGui::SameLine();
 				ImGui::RadioButton("specular", &activeLight.lightType, 2);
+				ImGui::SameLine();
+				ImGui::RadioButton("phong lighting", &activeLight.lightType, 3);
 
-				ImGui::ColorEdit3("ambient", (float*)&activeLight.ambientLight);
-				ImGui::ColorEdit3("diffuse", (float*)&activeLight.diffuseLight);
-				ImGui::ColorEdit3("specular", (float*)&activeLight.specularLight);
+				ImGui::Text("Light Colors");
+				ImGui::ColorEdit3("ambient1", (float*)&activeLight.LambientLight);
+				ImGui::ColorEdit3("diffuse1", (float*)&activeLight.LdiffuseLight);
+				ImGui::ColorEdit3("specular1", (float*)&activeLight.LspecularLight);
+				ImGui::Text("Model Colors");
+				ImGui::ColorEdit3("ambient2", (float*)&activeLight.MambientLight);
+				ImGui::ColorEdit3("diffuse2", (float*)&activeLight.MdiffuseLight);
+				ImGui::ColorEdit3("specular2", (float*)&activeLight.MspecularLight);
 
 				ImGui::RadioButton("flat", &activeLight.shading, 0);
 				ImGui::SameLine();
