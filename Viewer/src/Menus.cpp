@@ -653,8 +653,6 @@ void Menus::Settings() {
 				ImGui::RadioButton("diffuse", &activeLight.lightType, 1);
 				ImGui::SameLine();
 				ImGui::RadioButton("specular", &activeLight.lightType, 2);
-				ImGui::SameLine();
-				ImGui::RadioButton("phong lighting", &activeLight.lightType, 3);
 
 				ImGui::Text("Light Colors");
 				ImGui::ColorEdit3("ambient1", (float*)&activeLight.LambientLight);
@@ -664,6 +662,8 @@ void Menus::Settings() {
 				ImGui::ColorEdit3("ambient2", (float*)&activeLight.MambientLight);
 				ImGui::ColorEdit3("diffuse2", (float*)&activeLight.MdiffuseLight);
 				ImGui::ColorEdit3("specular2", (float*)&activeLight.MspecularLight);
+
+				ImGui::SliderFloat("specular shine", &activeLight.shine, 0.01, 1);
 
 				ImGui::RadioButton("flat", &activeLight.shading, 0);
 				ImGui::SameLine();

@@ -4,6 +4,7 @@ PointLight::PointLight() {
 	x = y = z = 0.0;
 
 	lightType = 0;
+	shine = 1.0f;
 	shading = 0;
 }
 

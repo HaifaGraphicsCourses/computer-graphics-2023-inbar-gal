@@ -17,16 +17,18 @@ class Camera {
 		void SetOrthographic();
 		void SetPerspective();
 		void Reset1();
-
+		
 		float eyeX, eyeY, eyeZ;
 		float atX, atY, atZ;
 		float upX, upY, upZ;
-
+		
 		float orthoLeft, orthoRight, orthoTop, orthoBottom, orthoNear, orthoFar;
 		float perNear, perFar, perWidth, perHeight, perFOV;
 
 		bool isChanged;
 		bool isChanged1;
+
+		glm::vec3 GetPosition();
 	private:
 		glm::mat4x4 view_transformation;
 		glm::mat4x4 projection_transformation;

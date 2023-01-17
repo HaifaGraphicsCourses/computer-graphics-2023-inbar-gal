@@ -20,8 +20,9 @@ class PointLight {
 		glm::vec4 MdiffuseLight = glm::vec4(0.0f, 1.0f, 0.0f, 0.00f);
 		glm::vec4 MspecularLight = glm::vec4(0.0f, 0.0f, 1.0f, 0.00f);
 
-		int shading;
+		float shine;
 
+		int shading;
 	private:
 
 };

@@ -26,7 +26,7 @@ Camera::Camera() {
 }
 
 Camera::~Camera() {
-
+	
 }
 
 void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up) {
@@ -83,4 +83,8 @@ void Camera::Reset1() {
 	perFar = 100;
 
 	SetOrthographic();
+}
+
+glm::vec3 Camera::GetPosition() {
+	return glm::vec3(eyeX, eyeY, eyeZ);
 }

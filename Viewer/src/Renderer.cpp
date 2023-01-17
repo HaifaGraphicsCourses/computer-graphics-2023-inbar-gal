@@ -715,13 +715,35 @@ void Renderer::DrawZBufferColor(const Scene& scene) {
 							z = activeLight.LdiffuseLight.z * d * activeLight.MdiffuseLight.z;
 							diffuse = glm::vec3(x, y, z);
 
-							// direction of opposite angle - return light x direction of camera ^ alpha-shine
+							// direction of opposite angle - (return light x direction of camera) ^ alpha-shine
+							glm::vec3 reflectLightVector1 = glm::reflect(-lightVector1, n1);
+							glm::vec3 reflectLightVector2 = glm::reflect(-lightVector2, n2);
+							glm::vec3 reflectLightVector3 = glm::reflect(-lightVector3, n3);
+							// direction of camera
+							glm::vec3 position = scene.GetActiveCamera().GetPosition();
+							glm::vec3 eyeVector1 = glm::normalize(position - v1);
+							glm::vec3 eyeVector2 = glm::normalize(position - v2);
+							glm::vec3 eyeVector3 = glm::normalize(position - v3);
+							// color as cross product between light vector to normal
+							a = glm::dot(reflectLightVector1, eyeVector1);
+							b = glm::dot(reflectLightVector2, eyeVector2);
+							c = glm::dot(reflectLightVector3, eyeVector3);
+							d = (a + b + c) / 3.0;
+							// shine effect
+							d = pow(d, activeLight.shine);
+							x = activeLight.LspecularLight.x * d * activeLight.MspecularLight.x;
+							y = activeLight.LspecularLight.y * d * activeLight.MspecularLight.y;
+							z = activeLight.LspecularLight.z * d * activeLight.MspecularLight.z;
+							specular = glm::vec3(x, y, z);
 
 							if (activeLight.lightType == 0) {								
 								PutPixelpolygon(c1, c2, ambient, depth, 2, 0);
 							}
 							else if (activeLight.lightType == 1) {
-								PutPixelpolygon(c1, c2, diffuse, depth, 2, 0);
+								PutPixelpolygon(c1, c2, ambient + diffuse, depth, 2, 0);
+							}
+							else if (activeLight.lightType == 2) {
+								PutPixelpolygon(c1, c2, ambient + diffuse + specular, depth, 2, 0);
 							}
 						}
 						else if (scene.fillMode == 3) {
