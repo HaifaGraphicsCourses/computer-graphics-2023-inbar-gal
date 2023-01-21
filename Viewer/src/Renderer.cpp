@@ -695,55 +695,147 @@ void Renderer::DrawZBufferColor(const Scene& scene) {
 
 						depth = (area12 / faceArea) * currentZ3 + (area23 / faceArea) * currentZ1 + (area31 / faceArea) * currentZ2;
 						if (scene.fillMode == 2) {
-							// color of light x color of model
-							x = activeLight.LambientLight.x * activeLight.MambientLight.x;
-							y = activeLight.LambientLight.y * activeLight.MambientLight.y;
-							z = activeLight.LambientLight.z * activeLight.MambientLight.z;
-							ambient = glm::vec3(x, y, z);
+							if (activeLight.shading == 0) {
+								// color of light x color of model
+								x = activeLight.LambientLight.x * activeLight.MambientLight.x;
+								y = activeLight.LambientLight.y * activeLight.MambientLight.y;
+								z = activeLight.LambientLight.z * activeLight.MambientLight.z;
+								ambient = glm::vec3(x, y, z);
 
-							// direction of light - vector between light position to vertex
-							glm::vec3 lightVector1 = glm::normalize(activeLight.position - v1);
-							glm::vec3 lightVector2 = glm::normalize(activeLight.position - v2);
-							glm::vec3 lightVector3 = glm::normalize(activeLight.position - v3);
-							// color as cross product between light vector to normal
-							float a = glm::dot(lightVector1, n1);
-							float b = glm::dot(lightVector2, n2);
-							float c = glm::dot(lightVector3, n3);
-							float d = (a + b + c) / 3.0;
-							x = activeLight.LdiffuseLight.x * d * activeLight.MdiffuseLight.x;
-							y = activeLight.LdiffuseLight.y * d * activeLight.MdiffuseLight.y;
-							z = activeLight.LdiffuseLight.z * d * activeLight.MdiffuseLight.z;
-							diffuse = glm::vec3(x, y, z);
+								// direction of light - vector between light position to vertex
+								glm::vec3 lightVector1 = glm::normalize(activeLight.position - v1);
+								glm::vec3 lightVector2 = glm::normalize(activeLight.position - v2);
+								glm::vec3 lightVector3 = glm::normalize(activeLight.position - v3);
+								// color as cross product between light vector to normal
+								float a = glm::dot(lightVector1, n1);
+								float b = glm::dot(lightVector2, n2);
+								float c = glm::dot(lightVector3, n3);
+								float d = (a + b + c) / 3.0;
+								x = activeLight.LdiffuseLight.x * d * activeLight.MdiffuseLight.x;
+								y = activeLight.LdiffuseLight.y * d * activeLight.MdiffuseLight.y;
+								z = activeLight.LdiffuseLight.z * d * activeLight.MdiffuseLight.z;
+								diffuse = glm::vec3(x, y, z);
 
-							// direction of opposite angle - (return light x direction of camera) ^ alpha-shine
-							glm::vec3 reflectLightVector1 = glm::reflect(-lightVector1, n1);
-							glm::vec3 reflectLightVector2 = glm::reflect(-lightVector2, n2);
-							glm::vec3 reflectLightVector3 = glm::reflect(-lightVector3, n3);
-							// direction of camera
-							glm::vec3 position = scene.GetActiveCamera().GetPosition();
-							glm::vec3 eyeVector1 = glm::normalize(position - v1);
-							glm::vec3 eyeVector2 = glm::normalize(position - v2);
-							glm::vec3 eyeVector3 = glm::normalize(position - v3);
-							// color as cross product between light vector to normal
-							a = glm::dot(reflectLightVector1, eyeVector1);
-							b = glm::dot(reflectLightVector2, eyeVector2);
-							c = glm::dot(reflectLightVector3, eyeVector3);
-							d = (a + b + c) / 3.0;
-							// shine effect
-							d = pow(d, activeLight.shine);
-							x = activeLight.LspecularLight.x * d * activeLight.MspecularLight.x;
-							y = activeLight.LspecularLight.y * d * activeLight.MspecularLight.y;
-							z = activeLight.LspecularLight.z * d * activeLight.MspecularLight.z;
-							specular = glm::vec3(x, y, z);
+								// direction of opposite angle - (return light x direction of camera) ^ alpha-shine
+								glm::vec3 reflectLightVector1 = glm::reflect(-lightVector1, n1);
+								glm::vec3 reflectLightVector2 = glm::reflect(-lightVector2, n2);
+								glm::vec3 reflectLightVector3 = glm::reflect(-lightVector3, n3);
+								// direction of camera
+								glm::vec3 position = scene.GetActiveCamera().GetPosition();
+								glm::vec3 eyeVector1 = glm::normalize(position - v1);
+								glm::vec3 eyeVector2 = glm::normalize(position - v2);
+								glm::vec3 eyeVector3 = glm::normalize(position - v3);
+								// color as cross product between light vector to normal
+								a = glm::dot(reflectLightVector1, eyeVector1);
+								b = glm::dot(reflectLightVector2, eyeVector2);
+								c = glm::dot(reflectLightVector3, eyeVector3);
+								d = (a + b + c) / 3.0;
+								// shine effect
+								d = pow(d, activeLight.shine);
+								x = activeLight.LspecularLight.x * d * activeLight.MspecularLight.x;
+								y = activeLight.LspecularLight.y * d * activeLight.MspecularLight.y;
+								z = activeLight.LspecularLight.z * d * activeLight.MspecularLight.z;
+								specular = glm::vec3(x, y, z);
 
-							if (activeLight.lightType == 0) {								
-								PutPixelpolygon(c1, c2, ambient, depth, 2, 0);
+								// flat shading leaves the normal as it is
+								if (activeLight.lightType == 0) {
+									PutPixelpolygon(c1, c2, ambient, depth, 2, 0);
+								}
+								else if (activeLight.lightType == 1) {
+									PutPixelpolygon(c1, c2, ambient + diffuse, depth, 2, 0);
+								}
+								else if (activeLight.lightType == 2) {
+									PutPixelpolygon(c1, c2, ambient + diffuse + specular, depth, 2, 0);
+								}
 							}
-							else if (activeLight.lightType == 1) {
-								PutPixelpolygon(c1, c2, ambient + diffuse, depth, 2, 0);
+							else if (activeLight.shading == 1) {
+								// color of light x color of model
+								x = activeLight.LambientLight.x * activeLight.MambientLight.x;
+								y = activeLight.LambientLight.y * activeLight.MambientLight.y;
+								z = activeLight.LambientLight.z * activeLight.MambientLight.z;
+								ambient = glm::vec3(x, y, z);
+
+								glm::vec3 interpolatedN = (area23 / faceArea) * n1 + (area31 / faceArea) * n2 + (area12 / faceArea) * n3;
+								glm::vec3 normalP = glm::normalize(activeLight.position);
+								float divv = sqrt(interpolatedN.x * interpolatedN.x + interpolatedN.y * interpolatedN.y + interpolatedN.z * interpolatedN.z) * sqrt(normalP.x * normalP.x + normalP.y * normalP.y + normalP.z * normalP.z);
+								float cos_angle = (interpolatedN.x * normalP.x + interpolatedN.y * normalP.y + interpolatedN.z * normalP.z) / divv;
+								cos_angle = glm::clamp(cos_angle, (float)0.0, (float)1.0);
+								x = activeLight.LdiffuseLight.x * cos_angle * activeLight.MdiffuseLight.x;
+								y = activeLight.LdiffuseLight.y * cos_angle * activeLight.MdiffuseLight.y;
+								z = activeLight.LdiffuseLight.z * cos_angle * activeLight.MdiffuseLight.z;
+								diffuse = glm::vec3(x, y, z);
+
+								glm::vec3 lightVector1 = glm::normalize(activeLight.position - v1);
+								glm::vec3 lightVector2 = glm::normalize(activeLight.position - v2);
+								glm::vec3 lightVector3 = glm::normalize(activeLight.position - v3);
+								// direction of opposite angle - (return light x direction of camera) ^ alpha-shine
+								glm::vec3 reflectLightVector1 = glm::reflect(-lightVector1, n1);
+								glm::vec3 reflectLightVector2 = glm::reflect(-lightVector2, n2);
+								glm::vec3 reflectLightVector3 = glm::reflect(-lightVector3, n3);
+								// direction of camera
+								glm::vec3 position = scene.GetActiveCamera().GetPosition();
+								glm::vec3 eyeVector1 = glm::normalize(position - v1);
+								glm::vec3 eyeVector2 = glm::normalize(position - v2);
+								glm::vec3 eyeVector3 = glm::normalize(position - v3);
+								// color as cross product between light vector to normal
+								float a = glm::dot(reflectLightVector1, eyeVector1);
+								float b = glm::dot(reflectLightVector2, eyeVector2);
+								float c = glm::dot(reflectLightVector3, eyeVector3);
+								float d = (a + b + c) / 3.0;
+								// shine effect
+								d = pow(d, activeLight.shine);
+								x = activeLight.LspecularLight.x * d * activeLight.MspecularLight.x;
+								y = activeLight.LspecularLight.y * d * activeLight.MspecularLight.y;
+								z = activeLight.LspecularLight.z * d * activeLight.MspecularLight.z;
+								specular = glm::vec3(x, y, z);
+
+								if (activeLight.lightType == 0) {
+									PutPixelpolygon(c1, c2, ambient, depth, 2, 0);
+								}
+								else if (activeLight.lightType == 1) {
+									PutPixelpolygon(c1, c2, ambient + diffuse, depth, 2, 0);
+								}
+								else if (activeLight.lightType == 2) {
+									PutPixelpolygon(c1, c2, ambient + diffuse + specular, depth, 2, 0);
+								}
 							}
-							else if (activeLight.lightType == 2) {
-								PutPixelpolygon(c1, c2, ambient + diffuse + specular, depth, 2, 0);
+							else if (activeLight.shading == 2) {
+								// color of light x color of model
+								x = activeLight.LambientLight.x * activeLight.MambientLight.x;
+								y = activeLight.LambientLight.y * activeLight.MambientLight.y;
+								z = activeLight.LambientLight.z * activeLight.MambientLight.z;
+								ambient = glm::vec3(x, y, z);
+
+								glm::vec3 interpolatedN = (area23 / faceArea) * n1 + (area31 / faceArea) * n2 + (area12 / faceArea) * n3;
+								glm::vec3 normalP = glm::normalize(activeLight.position);
+								float divv = sqrt(interpolatedN.x * interpolatedN.x + interpolatedN.y * interpolatedN.y + interpolatedN.z * interpolatedN.z) * sqrt(normalP.x * normalP.x + normalP.y * normalP.y + normalP.z * normalP.z);
+								float cos_angle = (interpolatedN.x * normalP.x + interpolatedN.y * normalP.y + interpolatedN.z * normalP.z) / divv;
+								cos_angle = glm::clamp(cos_angle, (float)0.0, (float)1.0);
+								x = activeLight.LdiffuseLight.x * cos_angle * activeLight.MdiffuseLight.x;
+								y = activeLight.LdiffuseLight.y * cos_angle * activeLight.MdiffuseLight.y;
+								z = activeLight.LdiffuseLight.z * cos_angle * activeLight.MdiffuseLight.z;
+								diffuse = glm::vec3(x, y, z);
+
+								glm::vec3 interpolatednormal = glm::normalize(interpolatedN);
+								glm::vec3 lightposition = glm::normalize(activeLight.position);
+								glm::vec3 reflection = lightposition - 2 * (glm::dot(lightposition, interpolatednormal)) * interpolatednormal;
+								divv = sqrt(reflection.x * reflection.x + reflection.y * reflection.y + reflection.z * reflection.z);
+								cos_angle = (reflection.x + reflection.y + reflection.z) / divv;
+								cos_angle = glm::clamp(cos_angle, (float)0.0, (float)1.0);
+								x = activeLight.LspecularLight.x * cos_angle * activeLight.MspecularLight.x;
+								y = activeLight.LspecularLight.y * cos_angle * activeLight.MspecularLight.y;
+								z = activeLight.LspecularLight.z * cos_angle * activeLight.MspecularLight.z;
+								specular = glm::vec3(x, y, z);
+
+								if (activeLight.lightType == 0) {
+									PutPixelpolygon(c1, c2, ambient, depth, 2, 0);
+								}
+								else if (activeLight.lightType == 1) {
+									PutPixelpolygon(c1, c2, ambient + diffuse, depth, 2, 0);
+								}
+								else if (activeLight.lightType == 2) {
+									PutPixelpolygon(c1, c2, ambient + diffuse + specular, depth, 2, 0);
+								}
 							}
 						}
 						else if (scene.fillMode == 3) {
