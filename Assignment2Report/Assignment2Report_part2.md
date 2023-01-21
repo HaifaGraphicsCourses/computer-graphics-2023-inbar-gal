@@ -41,7 +41,8 @@ In Gouraud shading, we use the normal of each vertex in order to find the color 
 - Ambient color: stays the same
 - Diffuse color: we would put 2 pictures side by side. The left one is diffuse in flat (we have seen it before) and the right one is diffuse in Gouraud. Notice the smoothness of the Gouraud shading in comparison to the flat shading
 ![gouD1](gouD1.png)![gouD2](gouD2.png)
-- Specular color: again we would put 2 pictures side by side. The left one is specular in flat (we have seen it before) and the right one is specular in Gouraud. Notice not only the smoothness of the Gouraud shading in comparison to the flat shading – but also the shine effect. It looks so much better in the Gouraud shading 
+- Specular color: again we would put 2 pictures side by side. The left one is specular in flat (we have seen it before) and the right one is specular in Gouraud. Notice not only the smoothness of the Gouraud shading in comparison to the flat shading – but also the shine effect. It looks so much better in the Gouraud shading
+
 ![gouS1](gouS1.png)![gouS2](gouS2.png)
 # Phong Shading:
 In Phong shading, we calculate the normal for each point in the face by interpolation of vertex normals. Only than do we calculate the color according to this new normal
@@ -51,4 +52,6 @@ In Phong shading, we calculate the normal for each point in the face by interpol
 	- Second Picture: Gouraud removes those outlines, but the spreading of light is inequal
 	- Third picture: We can see exactly where the light hits the sphere, and the shine effect is definitely working
 
-![phong1](phong1.png)![phong2](phong2.png)![phong3](phong3.png)
+![phong1](phong1.png)
+![phong2](phong2.png)
+![phong3](phong3.png)
