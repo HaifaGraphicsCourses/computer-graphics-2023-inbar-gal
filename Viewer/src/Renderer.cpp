@@ -13,8 +13,8 @@
 
 Renderer::Renderer(int viewport_width, int viewport_height) :
 	viewport_width(viewport_width), viewport_height(viewport_height) {
-	InitOpenglRendering();
-	CreateBuffers(viewport_width, viewport_height);
+	/*InitOpenglRendering();
+	CreateBuffers(viewport_width, viewport_height);*/
 	CreateRandomColorArray();
 }
 
@@ -26,7 +26,7 @@ Renderer::~Renderer() {
 void Renderer::PutPixel(int i, int j, const glm::vec3& color) {
 	if (i < 0) return; if (i >= viewport_width) return;
 	if (j < 0) return; if (j >= viewport_height) return;
-	
+
 	color_buffer[INDEX(viewport_width, i, j, 0)] = color.x;
 	color_buffer[INDEX(viewport_width, i, j, 1)] = color.y;
 	color_buffer[INDEX(viewport_width, i, j, 2)] = color.z;
@@ -40,7 +40,7 @@ void Renderer::DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::v
 		PutPixel(p1.x, p1.y, color);
 		return;
 	}
-	
+
 	// calculating x difference
 	int deltaP = p2.x - p1.x;
 	// if deltaP is 0, it's a straight line up or down 
@@ -48,7 +48,7 @@ void Renderer::DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::v
 		drawX(p1, p2, color);
 		return;
 	}
-	
+
 	// calculating y difference
 	int deltaQ = p2.y - p1.y;
 	// if deltaQ is 0, it's a straight line left or right 
@@ -60,7 +60,7 @@ void Renderer::DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::v
 	/* since deltaQ / deltaP are absolute values, slopeA can be
 	* 0 < a < 1
 	* a > 1 -> in that case, x and y switch roles */
-	float slopeA = ((float)abs(deltaQ)) / ((float)abs(deltaP));	
+	float slopeA = ((float)abs(deltaQ)) / ((float)abs(deltaP));
 	if (slopeA < 1) {
 		slopeFloat(p1, p2, color, deltaQ, deltaP);
 	}
@@ -228,7 +228,7 @@ void Renderer::InitOpenglRendering() {
 	//	     | \ | <--- The exture is drawn over two triangles that stretch over the screen.
 	//	     |__\|
 	// (-1,-1)    (1,-1)
-	const GLfloat vtc[]={
+	const GLfloat vtc[] = {
 		-1, -1,
 		 1, -1,
 		-1,  1,
@@ -237,19 +237,19 @@ void Renderer::InitOpenglRendering() {
 		 1,  1
 	};
 
-	const GLfloat tex[]={
+	const GLfloat tex[] = {
 		0,0,
 		1,0,
 		0,1,
 		0,1,
 		1,0,
-		1,1};
+		1,1 };
 
 	// Makes this buffer the current one.
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 
 	// This is the opengl way for doing malloc on the gpu. 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vtc)+sizeof(tex), NULL, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vtc) + sizeof(tex), NULL, GL_STATIC_DRAW);
 
 	// memcopy vtc to buffer[0,sizeof(vtc)-1]
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vtc), vtc);
@@ -258,25 +258,25 @@ void Renderer::InitOpenglRendering() {
 	glBufferSubData(GL_ARRAY_BUFFER, sizeof(vtc), sizeof(tex), tex);
 
 	// Loads and compiles a sheder.
-	GLuint program = InitShader( "vshader.glsl", "fshader.glsl" );
+	GLuint program = InitShader("vshader.glsl", "fshader.glsl");
 
 	// Make this program the current one.
 	glUseProgram(program);
 
 	// Tells the shader where to look for the vertex position data, and the data dimensions.
-	GLint  vPosition = glGetAttribLocation( program, "vPosition" );
-	glEnableVertexAttribArray( vPosition );
-	glVertexAttribPointer( vPosition,2,GL_FLOAT,GL_FALSE,0,0 );
+	GLint  vPosition = glGetAttribLocation(program, "vPosition");
+	glEnableVertexAttribArray(vPosition);
+	glVertexAttribPointer(vPosition, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
 	// Same for texture coordinates data.
-	GLint  vTexCoord = glGetAttribLocation( program, "vTexCoord" );
-	glEnableVertexAttribArray( vTexCoord );
-	glVertexAttribPointer( vTexCoord,2,GL_FLOAT,GL_FALSE,0,(GLvoid *)sizeof(vtc) );
+	GLint  vTexCoord = glGetAttribLocation(program, "vTexCoord");
+	glEnableVertexAttribArray(vTexCoord);
+	glVertexAttribPointer(vTexCoord, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)sizeof(vtc));
 
 	//glProgramUniform1i( program, glGetUniformLocation(program, "texture"), 0 );
 
 	// Tells the shader to use GL_TEXTURE0 as the texture id.
-	glUniform1i(glGetUniformLocation(program, "texture"),0);
+	glUniform1i(glGetUniformLocation(program, "texture"), 0);
 }
 
 void Renderer::CreateOpenglBuffer() {
@@ -323,7 +323,40 @@ void Renderer::ClearColorBuffer(const glm::vec3& color) {
 }
 
 void Renderer::Render(const Scene& scene) {
-	int half_width = viewport_width / 2;
+	if (scene.ModelVectorEmpty() == 1) {
+		glm::mat4x4 third = scene.GetActiveCamera().GetViewTransformation();
+		glm::mat4x4 fourth = scene.GetActiveCamera().GetProjectionTransformation();
+
+		for (int i = 0; i < scene.GetModelCount(); i++) {
+			MeshModel current = scene.GetModel(i);
+			glm::mat4 first = scene.GetModel(i).GetModelTransformation();
+			glm::mat4 second = scene.GetModel(i).GetWorldTransformation();
+
+			colorShader.use();
+
+			colorShader.setUniform("model", first);
+			colorShader.setUniform("world", second);
+			colorShader.setUniform("view", third);
+			colorShader.setUniform("projection", fourth);
+
+			if (scene.fillMode == 0) {
+				// Drag our model's faces (triangles) in line mode (wireframe)
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				glBindVertexArray(scene.GetModel(i).vao);
+				glDrawArrays(GL_TRIANGLES, 0, scene.GetModel(i).GetModelVertices().size());
+				glBindVertexArray(0);
+			}
+			else if (scene.fillMode == 2) {
+				// Drag our model's faces (triangles) in fill mode
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				glBindVertexArray(scene.GetModel(i).vao);
+				glDrawArrays(GL_TRIANGLES, 0, scene.GetModel(i).GetModelVertices().size());
+				glBindVertexArray(0);
+			}
+		}
+	}
+
+	/*int half_width = viewport_width / 2;
 	int half_height = viewport_height / 2;
 
 	if (scene.ModelVectorEmpty() == 1) {
@@ -352,7 +385,7 @@ void Renderer::Render(const Scene& scene) {
 		}
 		else if (scene.fillMode == 2 || scene.fillMode == 3) {
 			DrawZBufferColor(scene);
-		}		
+		}
 
 		DrawAxes(scene);
 		DrawBoundingBox(scene);
@@ -360,7 +393,7 @@ void Renderer::Render(const Scene& scene) {
 		DrawVertexNormals(scene);
 
 		DrawBoundingRectangle(scene);
-	}
+	}*/
 }
 
 int Renderer::GetViewportWidth() const {
@@ -473,12 +506,12 @@ void Renderer::DrawFaceNormals(const Scene& scene) {
 			glm::mat4x4 first = scene.GetActiveCamera().GetViewTransformation();
 			glm::mat4x4 second = scene.GetActiveCamera().GetProjectionTransformation();
 			MeshModel current = scene.GetModel(i);
-			
+
 			for (int i = 0; i < current.GetFacesCount(); i++) {
 				Face currentF = current.GetFace(i);
 				int one = currentF.GetVertexIndex(0) - 1, two = currentF.GetVertexIndex(1) - 1, three = currentF.GetVertexIndex(2) - 1;
 				glm::vec3 v1 = current.GetVertex(one), v2 = current.GetVertex(two), v3 = current.GetVertex(three);
-				
+
 				glm::vec3 u = v2 - v1;
 				glm::vec3 v = v3 - v1;
 
@@ -491,10 +524,10 @@ void Renderer::DrawFaceNormals(const Scene& scene) {
 				faceCenter.x = (v1.x + v2.x + v3.x) / 3;
 				faceCenter.y = (v1.y + v2.y + v3.y) / 3;
 				faceCenter.z = (v1.z + v2.z + v3.z) / 3;
-				
+
 				faceNormal.x += faceCenter.x;
 				faceNormal.y += faceCenter.y;
-				
+
 				current.ChangeVectors(faceNormal, 1, first, second);
 				current.ChangeVectors(faceCenter, 1, first, second);
 
@@ -554,7 +587,7 @@ void Renderer::DrawBoundingRectangle(const Scene& scene) {
 				Face currentF = current.GetFace(i);
 				int one = currentF.GetVertexIndex(0) - 1, two = currentF.GetVertexIndex(1) - 1, three = currentF.GetVertexIndex(2) - 1;
 				glm::vec3 v1 = current.GetVertex(one), v2 = current.GetVertex(two), v3 = current.GetVertex(three);
-				
+
 				tMinX = fmin(v1.x, v2.x);
 				tMinX = fmin(tMinX, v3.x);
 				tMinY = fmin(v1.y, v2.y);
@@ -668,7 +701,7 @@ void Renderer::DrawZBufferColor(const Scene& scene) {
 			glm::vec3 v1 = current.GetVertex(one), v2 = current.GetVertex(two), v3 = current.GetVertex(three);
 			one = currentF.GetNormalIndex(0) - 1, two = currentF.GetNormalIndex(1) - 1, three = currentF.GetNormalIndex(2) - 1;
 			glm::vec3 n1 = current.GetNormal(one), n2 = current.GetNormal(two), n3 = current.GetNormal(three);
-			
+
 			int minXColor = min(min(v1.x, v2.x), v3.x);
 			int minYColor = min(min(v1.y, v2.y), v3.y);
 			int maxXColor = max(max(v1.x, v2.x), v3.x);
@@ -840,7 +873,7 @@ void Renderer::DrawZBufferColor(const Scene& scene) {
 						}
 						else if (scene.fillMode == 3) {
 							DrawLine(glm::ivec2(c1, c2), glm::ivec2(c1, c2), scene.clear_color);
-						}						
+						}
 					}
 				}
 			}
@@ -869,7 +902,7 @@ void Renderer::PutPixelpolygon(const int i, const int j, const glm::vec3& color,
 		color_buffer[INDEX(viewport_width, i, j, 0)] = color.r;
 		color_buffer[INDEX(viewport_width, i, j, 1)] = color.g;
 		color_buffer[INDEX(viewport_width, i, j, 2)] = color.b;
-		
+
 		z_buffer[INDEX(viewport_width, i, j, 0)] = z;
 		z_buffer[INDEX(viewport_width, i, j, 1)] = z;
 		z_buffer[INDEX(viewport_width, i, j, 2)] = z;
@@ -878,9 +911,13 @@ void Renderer::PutPixelpolygon(const int i, const int j, const glm::vec3& color,
 		color_buffer[INDEX(viewport_width, i, j, 0)] = color.r + z / gs;
 		color_buffer[INDEX(viewport_width, i, j, 1)] = color.g + z / gs;
 		color_buffer[INDEX(viewport_width, i, j, 2)] = color.b + z / gs;
-		
+
 		z_buffer[INDEX(viewport_width, i, j, 0)] = z;
 		z_buffer[INDEX(viewport_width, i, j, 1)] = z;
 		z_buffer[INDEX(viewport_width, i, j, 2)] = z;
-	}	
+	}
+}
+
+void Renderer::LoadShaders() {
+	colorShader.loadShaders("vshader.glsl", "fshader.glsl");
 }

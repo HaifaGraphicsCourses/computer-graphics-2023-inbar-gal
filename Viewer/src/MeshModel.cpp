@@ -1,8 +1,9 @@
 #include "MeshModel.h"
 #include <iostream>
+#include <glad/glad.h>
 
-MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices, 
-					 std::vector<glm::vec3> normals, const std::string& model_name) : 
+MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices,
+	std::vector<glm::vec3> normals, const std::string& model_name) :
 	faces(faces), vertices(vertices), normals(normals),
 	modelTransformation(1.0f), worldTransformation(1.0f),
 	modelRotation(1.0f), worldRotation(1.0f),
@@ -26,10 +27,11 @@ MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices,
 }
 
 MeshModel::~MeshModel() {
-
+	glDeleteVertexArrays(1, &vao);
+	glDeleteBuffers(1, &vbo);
 }
 
-MeshModel::MeshModel(const MeshModel& other) : 
+MeshModel::MeshModel(const MeshModel& other) :
 	faces(other.faces), vertices(other.vertices), normals(other.normals),
 	model_name(other.model_name),
 	modelTransformation(other.modelTransformation), worldTransformation(other.worldTransformation) {
@@ -103,7 +105,7 @@ glm::mat4 MeshModel::CreateRotation(int type, float degree) {
 	float pi = acos(-1);
 	float cost = cos(degree * pi / 180.0);
 	float sint = sin(degree * pi / 180.0);
-	
+
 	if (type == 1) {
 		return glm::mat4(
 			1, 0, 0, 0,
@@ -228,3 +230,83 @@ void MeshModel::print(glm::mat4x4 view, glm::mat4x4 projection) {
 	}
 	std::cout << std::endl;
 }
+
+MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, std::vector<glm::vec2> textureCoords, const std::string& model_name) :
+	faces(faces), vertices(vertices), normals(normals),
+	modelTransformation(1.0f), worldTransformation(1.0f),
+	modelRotation(1.0f), worldRotation(1.0f),
+	modelScalingMat(1.0f), worldScalingMat(1.0f),
+	modelTranslation(1.0f), worldTranslation(1.0f) {
+	// begin
+	const auto index = model_name.find_last_of('.');
+	if (index == std::string::npos) {
+		this->model_name = model_name;
+	}
+	else {
+		this->model_name = model_name.substr(0, index);
+	}
+
+	modelScaling = worldScaling = 1;
+	modelTranslationX = modelTranslationY = modelTranslationZ = 0;
+	worldTranslationX = worldTranslationY = worldTranslationZ = 0;
+	modelRotationX = modelRotationY = modelRotationZ = 0;
+	worldRotationX = worldRotationY = worldRotationZ = 0;
+	isChanged = false;
+
+	modelVertices.reserve(3 * faces.size());
+	for (int i = 0; i < faces.size(); i++) {
+		Face currentFace = faces.at(i);
+		for (int j = 0; j < 3; j++) {
+			int vertexIndex = currentFace.GetVertexIndex(j) - 1;
+
+			Vertex vertex;
+			vertex.position = vertices[vertexIndex];
+			vertex.normal = normals[vertexIndex];
+
+			if (textureCoords.size() > 0) {
+				int textureCoordsIndex = currentFace.GetTextureIndex(j) - 1;
+				vertex.texCoords = textureCoords[textureCoordsIndex];
+			}
+
+			modelVertices.push_back(vertex);
+		}
+	}
+
+	glGenVertexArrays(1, &vao);
+	glGenBuffers(1, &vbo);
+
+	glBindVertexArray(vao);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, modelVertices.size() * sizeof(Vertex), &modelVertices[0], GL_STATIC_DRAW);
+
+	// Vertex Positions
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)nullptr);
+	glEnableVertexAttribArray(0);
+
+	// Normals attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+	glEnableVertexAttribArray(1);
+
+	// Vertex Texture Coords
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoords));
+	glEnableVertexAttribArray(2);
+
+	// unbind to make sure other code does not change it somewhere else
+	glBindVertexArray(0);
+}
+
+const glm::mat4x4& MeshModel::GetWorldTransformation() const {
+	return worldTransformation;
+}
+
+const glm::mat4x4& MeshModel::GetModelTransformation() const {
+	return modelTransformation;
+}
+
+const std::vector<Vertex>& MeshModel::GetModelVertices() {
+	return modelVertices;
+}
+
+/*GLuint MeshModel::GetVAO() const {
+	return vao;
+}*/

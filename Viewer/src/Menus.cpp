@@ -129,7 +129,7 @@ void Menus::TranformationMouse() {
 				ImGui::RadioButton("world frame", &e, 1);
 				ImGui::PushItemWidth(200);
 				if (e == 0) {
-					if (ImGui::SliderFloat("model scaling", &activeModel.modelScaling, 1, 1000)) {
+					if (ImGui::SliderFloat("model scaling", &activeModel.modelScaling, -10, 10)) {
 						activeModel.isChanged = true;
 					}
 					if (ImGui::SliderFloat("model translating x", &activeModel.modelTranslationX, (-my_io.DisplaySize.x / 2), (my_io.DisplaySize.x / 2))) {
@@ -152,7 +152,7 @@ void Menus::TranformationMouse() {
 					}
 				}
 				if (e == 1) {
-					if (ImGui::SliderFloat("world scaling", &activeModel.worldScaling, 1, 1000)) {
+					if (ImGui::SliderFloat("world scaling", &activeModel.worldScaling, -10, 10)) {
 						activeModel.isChanged = true;
 					}
 					if (ImGui::SliderFloat("world translating x", &activeModel.worldTranslationX, (-my_io.DisplaySize.x / 2), (my_io.DisplaySize.x / 2))) {

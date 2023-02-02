@@ -36,19 +36,20 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
 	// TODO: Handle mouse scroll here
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
 	int windowWidth = 1920, windowHeight = 1080;
 	GLFWwindow* window = SetupGlfwWindow(windowWidth, windowHeight, "Mesh Viewer");
 	if (!window)
 		return 1;
-
+	
 	int frameBufferWidth, frameBufferHeight;
 	glfwMakeContextCurrent(window);
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
 
 	Renderer renderer = Renderer(frameBufferWidth, frameBufferHeight);
+	renderer.LoadShaders();
 	Scene scene = Scene();
-	
+
 	ImGuiIO& io = SetupDearImgui(window);
 	Menus menu = Menus(io, scene);
 
@@ -61,15 +62,15 @@ int main(int argc, char **argv) {
 	scene.SetActiveLightIndex(scene.GetLightCount() - 1);
 
 	glfwSetScrollCallback(window, ScrollCallback);
-    while (!glfwWindowShouldClose(window)) {
-        glfwPollEvents();
+	while (!glfwWindowShouldClose(window)) {
+		glfwPollEvents();
 		StartFrame();
 		menu.DrawImguiMenus(clear_color);
 		RenderFrame(window, scene, renderer, io);
-    }
+	}
 
 	Cleanup(window);
-    return 0;
+	return 0;
 }
 
 static void GlfwErrorCallback(int error, const char* description) {
@@ -83,16 +84,16 @@ GLFWwindow* SetupGlfwWindow(int w, int h, const char* window_name) {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	
-	#if __APPLE__
-		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	#endif
-	
+
+#if __APPLE__
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+
 	GLFWwindow* window = glfwCreateWindow(w, h, window_name, NULL, NULL);
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1); // Enable vsync
-						 // very importent!! initialization of glad
-						 // https://stackoverflow.com/questions/48582444/imgui-with-the-glad-opengl-loader-throws-segmentation-fault-core-dumped
+	// very importent!! initialization of glad
+	// https://stackoverflow.com/questions/48582444/imgui-with-the-glad-opengl-loader-throws-segmentation-fault-core-dumped
 
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	return window;
@@ -119,7 +120,7 @@ void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& 
 	int frameBufferWidth, frameBufferHeight;
 	glfwMakeContextCurrent(window);
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
-	
+
 	if (frameBufferWidth != renderer.GetViewportWidth() || frameBufferHeight != renderer.GetViewportHeight()) {
 		// TODO: Set new aspect ratio		
 	}
@@ -140,9 +141,13 @@ void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& 
 		}
 	}
 
-	renderer.ClearColorBuffer(clear_color);
+	//renderer.ClearColorBuffer(clear_color);
+	glClearColor(clear_color.r, clear_color.g, clear_color.b, clear_color.a);
+	glEnable(GL_DEPTH_TEST);
+	// Clear the screen and depth buffer
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	renderer.Render(scene);
-	renderer.SwapBuffers();
+	// renderer.SwapBuffers();
 
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	glfwMakeContextCurrent(window);

@@ -2,6 +2,7 @@
 #include "Scene.h"
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include "ShaderProgram.h"
 
 class Renderer {
 	public:
@@ -12,6 +13,7 @@ class Renderer {
 		void ClearColorBuffer(const glm::vec3& color);
 		int GetViewportWidth() const;
 		int GetViewportHeight() const;
+		void LoadShaders();
 	private:
 		void PutPixel(const int i, const int j, const glm::vec3& color);
 		void DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color);
@@ -19,7 +21,7 @@ class Renderer {
 		void drawY(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color);
 		void slopeFloat(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color, int DQ, int DP);
 		void slopeInt(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color, int DQ, int DP);
-		
+
 		void DrawAxes(const Scene& scene);
 		void DrawBoundingBox(const Scene& scene);
 		void DrawFaceNormals(const Scene& scene);
@@ -44,4 +46,5 @@ class Renderer {
 		GLuint gl_screen_tex;
 		GLuint gl_screen_vtc;
 		float* z_buffer;
+		ShaderProgram colorShader;
 };
