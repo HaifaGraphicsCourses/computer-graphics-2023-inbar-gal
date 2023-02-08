@@ -132,13 +132,13 @@ void Menus::TranformationMouse() {
 					if (ImGui::SliderFloat("model scaling", &activeModel.modelScaling, -10, 10)) {
 						activeModel.isChanged = true;
 					}
-					if (ImGui::SliderFloat("model translating x", &activeModel.modelTranslationX, (-my_io.DisplaySize.x / 2), (my_io.DisplaySize.x / 2))) {
+					if (ImGui::SliderFloat("model translating x", &activeModel.modelTranslationX, -10, 10)) {
 						activeModel.isChanged = true;
 					}
-					if (ImGui::SliderFloat("model translating y", &activeModel.modelTranslationY, (-my_io.DisplaySize.y / 2), (my_io.DisplaySize.y / 2))) {
+					if (ImGui::SliderFloat("model translating y", &activeModel.modelTranslationY, -10, 10)) {
 						activeModel.isChanged = true;
 					}
-					if (ImGui::SliderFloat("model translating z", &activeModel.modelTranslationZ, 0, 1000)) {
+					if (ImGui::SliderFloat("model translating z", &activeModel.modelTranslationZ, -10, 10)) {
 						activeModel.isChanged = true;
 					}
 					if (ImGui::SliderFloat("model rotating x", &activeModel.modelRotationX, -360, 360)) {
@@ -155,13 +155,13 @@ void Menus::TranformationMouse() {
 					if (ImGui::SliderFloat("world scaling", &activeModel.worldScaling, -10, 10)) {
 						activeModel.isChanged = true;
 					}
-					if (ImGui::SliderFloat("world translating x", &activeModel.worldTranslationX, (-my_io.DisplaySize.x / 2), (my_io.DisplaySize.x / 2))) {
+					if (ImGui::SliderFloat("world translating x", &activeModel.worldTranslationX, -10, 10)) {
 						activeModel.isChanged = true;
 					}
-					if (ImGui::SliderFloat("world translating y", &activeModel.worldTranslationY, (-my_io.DisplaySize.y / 2), (my_io.DisplaySize.y / 2))) {
+					if (ImGui::SliderFloat("world translating y", &activeModel.worldTranslationY, -10, 10)) {
 						activeModel.isChanged = true;
 					}
-					if (ImGui::SliderFloat("world translating z", &activeModel.worldTranslationZ, 0, 1000)) {
+					if (ImGui::SliderFloat("world translating z", &activeModel.worldTranslationZ, -10, 10)) {
 						activeModel.isChanged = true;
 					}
 					if (ImGui::SliderFloat("world rotating x", &activeModel.worldRotationX, -360, 360)) {
@@ -341,54 +341,54 @@ void Menus::TranformationKeyboard() {
 }
 
 void Menus::CheckLimits(MeshModel& activeModel) {
-	if (activeModel.modelScaling > 1000) {
-		activeModel.modelScaling = 1000;
+	if (activeModel.modelScaling > 10) {
+		activeModel.modelScaling = 10;
 	}
-	if (activeModel.modelScaling < 1) {
-		activeModel.modelScaling = 1;
+	if (activeModel.modelScaling < -10) {
+		activeModel.modelScaling = -10;
 	}
-	if (activeModel.worldScaling > 1000) {
-		activeModel.worldScaling = 1000;
+	if (activeModel.worldScaling > 10) {
+		activeModel.worldScaling = 10;
 	}
-	if (activeModel.worldScaling < 1) {
-		activeModel.worldScaling = 1;
+	if (activeModel.worldScaling < -10) {
+		activeModel.worldScaling = -10;
 	}
 
-	if (activeModel.modelTranslationX > (my_io.DisplaySize.x / 2)) {
-		activeModel.modelTranslationX = (my_io.DisplaySize.x / 2);
+	if (activeModel.modelTranslationX > 10) {
+		activeModel.modelTranslationX = 10;
 	}
-	if (activeModel.modelTranslationX < (-my_io.DisplaySize.x / 2)) {
-		activeModel.modelTranslationX = (-my_io.DisplaySize.x / 2);
+	if (activeModel.modelTranslationX < -10) {
+		activeModel.modelTranslationX = -10;
 	}
-	if (activeModel.worldTranslationX > (my_io.DisplaySize.x / 2)) {
-		activeModel.worldTranslationX = (my_io.DisplaySize.x / 2);
+	if (activeModel.worldTranslationX > 10) {
+		activeModel.worldTranslationX = 10;
 	}
-	if (activeModel.worldTranslationX < (-my_io.DisplaySize.x / 2)) {
-		activeModel.worldTranslationX = (-my_io.DisplaySize.x / 2);
+	if (activeModel.worldTranslationX < -10) {
+		activeModel.worldTranslationX = -10;
 	}
-	if (activeModel.modelTranslationY > (my_io.DisplaySize.y / 2)) {
-		activeModel.modelTranslationY = (my_io.DisplaySize.y / 2);
+	if (activeModel.modelTranslationY > 10) {
+		activeModel.modelTranslationY = 10;
 	}
-	if (activeModel.modelTranslationY < (-my_io.DisplaySize.y / 2)) {
-		activeModel.modelTranslationY = (-my_io.DisplaySize.y / 2);
+	if (activeModel.modelTranslationY < -10) {
+		activeModel.modelTranslationY = -10;
 	}
-	if (activeModel.worldTranslationY > (my_io.DisplaySize.y / 2)) {
-		activeModel.worldTranslationY = (my_io.DisplaySize.y / 2);
+	if (activeModel.worldTranslationY > 10) {
+		activeModel.worldTranslationY = 10;
 	}
-	if (activeModel.worldTranslationY < (-my_io.DisplaySize.y / 2)) {
-		activeModel.worldTranslationY = (-my_io.DisplaySize.y / 2);
+	if (activeModel.worldTranslationY < -10) {
+		activeModel.worldTranslationY = -10;
 	}
-	if (activeModel.modelTranslationZ > 1000) {
-		activeModel.modelTranslationZ = 1000;
+	if (activeModel.modelTranslationZ > 10) {
+		activeModel.modelTranslationZ = 10;
 	}
-	if (activeModel.modelTranslationZ < 0) {
-		activeModel.modelTranslationZ = 0;
+	if (activeModel.modelTranslationZ < -10) {
+		activeModel.modelTranslationZ = -10;
 	}
-	if (activeModel.worldTranslationZ > 1000) {
-		activeModel.worldTranslationZ = 1000;
+	if (activeModel.worldTranslationZ > 10) {
+		activeModel.worldTranslationZ = 10;
 	}
-	if (activeModel.worldTranslationZ < 0) {
-		activeModel.worldTranslationZ = 0;
+	if (activeModel.worldTranslationZ < -10) {
+		activeModel.worldTranslationZ = -10;
 	}
 
 	if (activeModel.modelRotationX > 360) {
@@ -469,39 +469,39 @@ void Menus::CameraPosition() {
 					activeCamera.Orbit();
 				}
 				ImGui::PushItemWidth(50);
-				if (ImGui::SliderFloat("up x", &activeCamera.upX, -5, 5)) {
+				if (ImGui::SliderFloat("up x", &activeCamera.upX, -10, 10)) {
 					activeCamera.isChanged = true;
 				}
 				ImGui::SameLine();
-				if (ImGui::SliderFloat("up y", &activeCamera.upY, -5, 5)) {
+				if (ImGui::SliderFloat("up y", &activeCamera.upY, -10, 10)) {
 					activeCamera.isChanged = true;
 				}
 				ImGui::SameLine();
-				if (ImGui::SliderFloat("up z", &activeCamera.upZ, -5, 5)) {
+				if (ImGui::SliderFloat("up z", &activeCamera.upZ, -10, 10)) {
 					activeCamera.isChanged = true;
 				}
 				
-				if (ImGui::SliderFloat("eye x", &activeCamera.eyeX, -5, 5)) {
+				if (ImGui::SliderFloat("eye x", &activeCamera.eyeX, -10, 10)) {
 					activeCamera.isChanged = true;
 				}
 				ImGui::SameLine();
-				if (ImGui::SliderFloat("eye y", &activeCamera.eyeY, -5, 5)) {
+				if (ImGui::SliderFloat("eye y", &activeCamera.eyeY, -10, 10)) {
 					activeCamera.isChanged = true;
 				}
 				ImGui::SameLine();
-				if (ImGui::SliderFloat("eye z", &activeCamera.eyeZ, -5, 5)) {
+				if (ImGui::SliderFloat("eye z", &activeCamera.eyeZ, -10, 10)) {
 					activeCamera.isChanged = true;
 				}
 
-				if (ImGui::SliderFloat("at x", &activeCamera.atX, -5, 5)) {
+				if (ImGui::SliderFloat("at x", &activeCamera.atX, -10, 10)) {
 					activeCamera.isChanged = true;
 				}
 				ImGui::SameLine();
-				if (ImGui::SliderFloat("at y", &activeCamera.atY, -5, 5)) {
+				if (ImGui::SliderFloat("at y", &activeCamera.atY, -10, 10)) {
 					activeCamera.isChanged = true;
 				}
 				ImGui::SameLine();
-				if (ImGui::SliderFloat("at z", &activeCamera.atZ, -5, 5)) {
+				if (ImGui::SliderFloat("at z", &activeCamera.atZ, -10, 10)) {
 					activeCamera.isChanged = true;
 				}
 				if (activeCamera.isChanged) {
@@ -557,10 +557,10 @@ void Menus::ChangeProjection() {
 		if (ImGui::SliderFloat("fovy", &activeCamera.perFOV, 1, 179)) {
 			activeCamera.isChanged1 = true;
 		}
-		if (ImGui::SliderFloat("width", &activeCamera.perWidth, 1, my_io.DisplaySize.x)) {
+		if (ImGui::SliderFloat("width", &activeCamera.perWidth, -10, 10)) {
 			activeCamera.isChanged1 = true;
 		}
-		if (ImGui::SliderFloat("height", &activeCamera.perHeight, 1, my_io.DisplaySize.y)) {
+		if (ImGui::SliderFloat("height", &activeCamera.perHeight, -10, 10)) {
 			activeCamera.isChanged1 = true;
 		}
 		if (ImGui::SliderFloat("far perspective", &activeCamera.perFar, 0.2, 100)) {
@@ -634,13 +634,13 @@ void Menus::Settings() {
 					activeLight.ResetPosition();
 				}
 				ImGui::PushItemWidth(200);
-				if (ImGui::SliderFloat("x", &activeLight.x, (-my_io.DisplaySize.x), (my_io.DisplaySize.x))) {
+				if (ImGui::SliderFloat("x", &activeLight.x, -10, 10)) {
 					activeLight.isChangedP = true;
 				}
-				if (ImGui::SliderFloat("y", &activeLight.y, (-my_io.DisplaySize.y), (my_io.DisplaySize.y))) {
+				if (ImGui::SliderFloat("y", &activeLight.y, -10, 10)) {
 					activeLight.isChangedP = true;
 				}
-				if (ImGui::SliderFloat("z", &activeLight.z, -1000, 1000)) {
+				if (ImGui::SliderFloat("z", &activeLight.z, -10, 10)) {
 					activeLight.isChangedP = true;
 				}
 				if (activeLight.isChangedP) {
@@ -663,7 +663,7 @@ void Menus::Settings() {
 				ImGui::ColorEdit3("diffuse2", (float*)&activeLight.MdiffuseLight);
 				ImGui::ColorEdit3("specular2", (float*)&activeLight.MspecularLight);
 
-				ImGui::SliderFloat("specular shine", &activeLight.shine, 0.01, 1);
+				ImGui::SliderFloat("specular shine", &activeLight.shine, 0.01, 128);
 
 				ImGui::RadioButton("flat", &activeLight.shading, 0);
 				ImGui::SameLine();
