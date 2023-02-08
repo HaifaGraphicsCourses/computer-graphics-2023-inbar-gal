@@ -324,35 +324,41 @@ void Renderer::ClearColorBuffer(const glm::vec3& color) {
 
 void Renderer::Render(const Scene& scene) {
 	if (scene.ModelVectorEmpty() == 1) {
-		glm::mat4x4 third = scene.GetActiveCamera().GetViewTransformation();
-		glm::mat4x4 fourth = scene.GetActiveCamera().GetProjectionTransformation();
+		if (scene.GetActiveLight().shading != 2) {
+			glm::mat4x4 third = scene.GetActiveCamera().GetViewTransformation();
+			glm::mat4x4 fourth = scene.GetActiveCamera().GetProjectionTransformation();
 
-		for (int i = 0; i < scene.GetModelCount(); i++) {
-			MeshModel current = scene.GetModel(i);
-			glm::mat4 first = scene.GetModel(i).GetModelTransformation();
-			glm::mat4 second = scene.GetModel(i).GetWorldTransformation();
+			for (int i = 0; i < scene.GetModelCount(); i++) {
+				MeshModel current = scene.GetModel(i);
+				glm::mat4 first = scene.GetModel(i).GetModelTransformation();
+				glm::mat4 second = scene.GetModel(i).GetWorldTransformation();
 
-			colorShader.use();
+				colorShader.loadShaders("vshader.glsl", "fshader.glsl");
+				colorShader.use();
 
-			colorShader.setUniform("model", first);
-			colorShader.setUniform("world", second);
-			colorShader.setUniform("view", third);
-			colorShader.setUniform("projection", fourth);
+				colorShader.setUniform("model", first);
+				colorShader.setUniform("world", second);
+				colorShader.setUniform("view", third);
+				colorShader.setUniform("projection", fourth);
 
-			if (scene.fillMode == 0) {
-				// Drag our model's faces (triangles) in line mode (wireframe)
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				glBindVertexArray(scene.GetModel(i).vao);
-				glDrawArrays(GL_TRIANGLES, 0, scene.GetModel(i).GetModelVertices().size());
-				glBindVertexArray(0);
-			}
-			else if (scene.fillMode == 2) {
-				// Drag our model's faces (triangles) in fill mode
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				glBindVertexArray(scene.GetModel(i).vao);
-				glDrawArrays(GL_TRIANGLES, 0, scene.GetModel(i).GetModelVertices().size());
-				glBindVertexArray(0);
-			}
+				if (scene.fillMode == 0) {
+					// Drag our model's faces (triangles) in line mode (wireframe)
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glBindVertexArray(scene.GetModel(i).vao);
+					glDrawArrays(GL_TRIANGLES, 0, scene.GetModel(i).GetModelVertices().size());
+					glBindVertexArray(0);
+				}
+				else if (scene.fillMode == 2) {
+					// Drag our model's faces (triangles) in fill mode
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					glBindVertexArray(scene.GetModel(i).vao);
+					glDrawArrays(GL_TRIANGLES, 0, scene.GetModel(i).GetModelVertices().size());
+					glBindVertexArray(0);
+				}
+			}		
+		}
+		else {
+			PhongOpenGL(scene);
 		}
 	}
 
@@ -918,6 +924,59 @@ void Renderer::PutPixelpolygon(const int i, const int j, const glm::vec3& color,
 	}
 }
 
-void Renderer::LoadShaders() {
-	colorShader.loadShaders("vshader.glsl", "fshader.glsl");
+void Renderer::PhongOpenGL(const Scene& scene) {
+	PointLight activeLight = scene.GetActiveLight();
+	if (activeLight.shading == 2) {
+		glm::mat4x4 third = scene.GetActiveCamera().GetViewTransformation();
+		glm::mat4x4 fourth = scene.GetActiveCamera().GetProjectionTransformation();
+
+		for (int i = 0; i < scene.GetModelCount(); i++) {
+			MeshModel current = scene.GetModel(i);
+			glm::mat4 first = scene.GetModel(i).GetModelTransformation();
+			glm::mat4 second = scene.GetModel(i).GetWorldTransformation();
+
+			phongShader.loadShaders("phong1.glsl", "phong2.glsl");
+			phongShader.use();
+
+			phongShader.setUniform("model", first);
+			phongShader.setUniform("world", second);
+			phongShader.setUniform("view", third);
+			phongShader.setUniform("projection", fourth);
+
+			phongShader.setUniform("ambientLightColor", activeLight.LambientLight);
+			phongShader.setUniform("diffuseLightColor", activeLight.LdiffuseLight);
+			phongShader.setUniform("specularLightColor", activeLight.LspecularLight);
+
+			phongShader.setUniform("ambientModelColor", activeLight.MambientLight);
+			phongShader.setUniform("diffuseModelColor", activeLight.MdiffuseLight);
+			phongShader.setUniform("specularModelColor", activeLight.MspecularLight);
+
+			phongShader.setUniform("lightPosition", activeLight.position);
+			phongShader.setUniform("eyePosition", scene.GetActiveCamera().GetPosition());
+			phongShader.setUniform("shine", activeLight.shine);
+
+			if (activeLight.lightType == 0) {
+				phongShader.setUniform("a", true);
+				phongShader.setUniform("d", false);
+				phongShader.setUniform("s", false);
+			}
+			else if (activeLight.lightType == 1) {
+				phongShader.setUniform("a", false);
+				phongShader.setUniform("d", true);
+				phongShader.setUniform("s", false);
+			}
+			else if (activeLight.lightType == 2) {
+				phongShader.setUniform("a", false);
+				phongShader.setUniform("d", false);
+				phongShader.setUniform("s", true);
+			}
+
+			// Drag our model's faces (triangles) in fill mode
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			glBindVertexArray(scene.GetModel(i).vao);
+			glDrawArrays(GL_TRIANGLES, 0, scene.GetModel(i).GetModelVertices().size());
+			glBindVertexArray(0);
+
+		}
+	}	
 }

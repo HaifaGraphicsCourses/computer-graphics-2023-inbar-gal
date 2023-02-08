@@ -13,7 +13,6 @@ class Renderer {
 		void ClearColorBuffer(const glm::vec3& color);
 		int GetViewportWidth() const;
 		int GetViewportHeight() const;
-		void LoadShaders();
 	private:
 		void PutPixel(const int i, const int j, const glm::vec3& color);
 		void DrawLine(const glm::ivec2& p1, const glm::ivec2& p2, const glm::vec3& color);
@@ -36,6 +35,8 @@ class Renderer {
 		float AreaOfTriangle(float x0, float y0, float x1, float y1, float x2, float y2);
 		void PutPixelpolygon(const int i, const int j, const glm::vec3& color, float z, int mode, float gs);
 
+		void PhongOpenGL(const Scene& scene);
+
 		void CreateBuffers(int w, int h);
 		void CreateOpenglBuffer();
 		void InitOpenglRendering();
@@ -47,4 +48,5 @@ class Renderer {
 		GLuint gl_screen_vtc;
 		float* z_buffer;
 		ShaderProgram colorShader;
+		ShaderProgram phongShader;
 };
