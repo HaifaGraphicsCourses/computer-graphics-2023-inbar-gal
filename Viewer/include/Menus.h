@@ -25,6 +25,8 @@ class Menus {
 
 		void DrawLightMenu();
 		void Settings();
+
+		void DrawTextureMenu();
 	private:
 		ImGuiIO& my_io;
 		Scene& my_scene;
@@ -36,6 +38,7 @@ class Menus {
 		bool orbitAroundOrigin;
 		bool show_triangle_fill_menu;
 		bool show_light_menu;
+		bool show_texture_menu;
 		
 		static int modelsCount;	
 		static int cameraCount;

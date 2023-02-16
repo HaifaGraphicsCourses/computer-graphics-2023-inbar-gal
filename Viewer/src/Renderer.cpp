@@ -358,7 +358,12 @@ void Renderer::Render(const Scene& scene) {
 			}		
 		}
 		else {
-			PhongOpenGL(scene);
+			if (scene.textureMode == 0) {
+				PhongOpenGL(scene);
+			}
+			else {
+				TextureOpenGL(scene);
+			}			
 		}
 	}
 
@@ -979,4 +984,89 @@ void Renderer::PhongOpenGL(const Scene& scene) {
 
 		}
 	}	
+}
+
+void Renderer::TextureOpenGL(const Scene& scene) {
+	PointLight activeLight = scene.GetActiveLight();
+	glm::mat4x4 third = scene.GetActiveCamera().GetViewTransformation();
+	glm::mat4x4 fourth = scene.GetActiveCamera().GetProjectionTransformation();
+
+	if (scene.textureMode == 1) {
+		for (int i = 0; i < scene.GetModelCount(); i++) {
+			MeshModel current = scene.GetModel(i);
+			glm::mat4 first = scene.GetModel(i).GetModelTransformation();
+			glm::mat4 second = scene.GetModel(i).GetWorldTransformation();
+
+			planeShader.loadShaders("plane1.glsl", "plane2.glsl");
+			LoadTextures();
+			planeShader.use();
+
+			planeShader.setUniform("model", first);
+			planeShader.setUniform("world", second);
+			planeShader.setUniform("view", third);
+			planeShader.setUniform("projection", fourth);
+
+			planeShader.setUniform("ambientLightColor", activeLight.LambientLight);
+			planeShader.setUniform("diffuseLightColor", activeLight.LdiffuseLight);
+			planeShader.setUniform("specularLightColor", activeLight.LspecularLight);
+
+			planeShader.setUniform("ambientModelColor", activeLight.MambientLight);
+			planeShader.setUniform("diffuseModelColor", activeLight.MdiffuseLight);
+			planeShader.setUniform("specularModelColor", activeLight.MspecularLight);
+			
+			planeShader.setUniform("textureMap", 0);
+
+			planeShader.setUniform("lightPosition", activeLight.position);
+			planeShader.setUniform("eyePosition", scene.GetActiveCamera().GetPosition());
+			planeShader.setUniform("shine", activeLight.shine);
+
+			if (activeLight.lightType == 0) {
+				planeShader.setUniform("a", true);
+				planeShader.setUniform("d", false);
+				planeShader.setUniform("s", false);
+			}
+			else if (activeLight.lightType == 1) {
+				planeShader.setUniform("a", false);
+				planeShader.setUniform("d", true);
+				planeShader.setUniform("s", false);
+			}
+			else if (activeLight.lightType == 2) {
+				planeShader.setUniform("a", false);
+				planeShader.setUniform("d", false);
+				planeShader.setUniform("s", true);
+			}
+
+			texture.bind();
+			// Drag our model's faces (triangles) in fill mode
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			glBindVertexArray(scene.GetModel(i).vao);
+			glDrawArrays(GL_TRIANGLES, 0, scene.GetModel(i).GetModelVertices().size());
+			glBindVertexArray(0);
+			texture.unbind();
+		}
+	}
+	else if (scene.textureMode == 2) {
+
+	}
+	else if (scene.textureMode == 3) {
+
+	}
+}
+
+void Renderer::LoadTextures() {
+	/*if (!texture.loadTexture("bin\\Debug\\crate.jpg", true)) {
+		texture.loadTexture("bin\\Debug\\crate.jpg", true);
+	}*/
+
+	/*if (!texture.loadTexture("bin\\Debug\\skull.jpg", true)) {
+		texture.loadTexture("bin\\Debug\\skull.jpg", true);
+	}*/
+
+	/*if (!texture.loadTexture("bin\\Debug\\earth.jpg", true)) {
+		texture.loadTexture("bin\\Debug\\earth.jpg", true);
+	}*/
+	
+	if (!texture.loadTexture("bin\\Debug\\satin1.jpg", true)) {
+		texture.loadTexture("bin\\Debug\\satin1.jpg", true);
+	}
 }

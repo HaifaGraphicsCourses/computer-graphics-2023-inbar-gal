@@ -47,7 +47,6 @@ int main(int argc, char** argv) {
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
 
 	Renderer renderer = Renderer(frameBufferWidth, frameBufferHeight);
-	//renderer.LoadShaders("vshader.glsl", "fshader.glsl");
 	Scene scene = Scene();
 
 	ImGuiIO& io = SetupDearImgui(window);

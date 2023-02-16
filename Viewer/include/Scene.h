@@ -46,6 +46,8 @@ class Scene {
 		PointLight& GetActiveLight() const;
 		void SetActiveLightIndex(int index);
 		int GetActiveLightIndex() const;
+
+		int textureMode;
 	private:
 		vector<shared_ptr<MeshModel>> mesh_models;
 		vector<shared_ptr<Camera>> cameras;

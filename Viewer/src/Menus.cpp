@@ -24,6 +24,9 @@ Menus::Menus(ImGuiIO& io, Scene& scene) : my_io(io), my_scene(scene) {
 	my_scene.greyScaleLevel = 50;
 
 	this->show_light_menu = false;
+
+	this->show_texture_menu = false;
+	my_scene.textureMode = 0;
 }
 
 void Menus::DrawImguiMenus(glm::vec4& clear_color) {
@@ -88,9 +91,14 @@ void Menus::DrawMainMenu(glm::vec4& clear_color) {
 		DrawTriangleFillMenu();
 	}
 
-	ImGui::Checkbox("Lights Menu", &show_light_menu);
+	ImGui::Checkbox("Lights Menu   ", &show_light_menu);
 	if (show_light_menu) {
 		DrawLightMenu();
+	}
+	ImGui::SameLine();
+	ImGui::Checkbox("Texture Menu", &show_texture_menu);
+	if (show_texture_menu) {
+		DrawTextureMenu();
 	}
 
 	ImGui::End();
@@ -634,13 +642,13 @@ void Menus::Settings() {
 					activeLight.ResetPosition();
 				}
 				ImGui::PushItemWidth(200);
-				if (ImGui::SliderFloat("x", &activeLight.x, -10, 10)) {
+				if (ImGui::SliderFloat("x", &activeLight.x, -100, 100)) {
 					activeLight.isChangedP = true;
 				}
-				if (ImGui::SliderFloat("y", &activeLight.y, -10, 10)) {
+				if (ImGui::SliderFloat("y", &activeLight.y, -100, 100)) {
 					activeLight.isChangedP = true;
 				}
-				if (ImGui::SliderFloat("z", &activeLight.z, -10, 10)) {
+				if (ImGui::SliderFloat("z", &activeLight.z, -100, 100)) {
 					activeLight.isChangedP = true;
 				}
 				if (activeLight.isChangedP) {
@@ -674,5 +682,18 @@ void Menus::Settings() {
 		}
 		ImGui::PopID();
 	}
+}
 
+void Menus::DrawTextureMenu() {
+	ImGui::Begin("Texture Menu");
+
+	ImGui::RadioButton("no texture", &my_scene.textureMode, 0);
+	ImGui::SameLine();
+	ImGui::RadioButton("plane", &my_scene.textureMode, 1);
+	ImGui::SameLine();
+	ImGui::RadioButton("cylinder", &my_scene.textureMode, 2);
+	ImGui::SameLine();
+	ImGui::RadioButton("sphere", &my_scene.textureMode, 3);
+
+	ImGui::End();
 }

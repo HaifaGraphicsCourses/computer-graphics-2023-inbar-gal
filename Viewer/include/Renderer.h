@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include "ShaderProgram.h"
+#include "Texture2D.h"
 
 class Renderer {
 	public:
@@ -36,6 +37,8 @@ class Renderer {
 		void PutPixelpolygon(const int i, const int j, const glm::vec3& color, float z, int mode, float gs);
 
 		void PhongOpenGL(const Scene& scene);
+		void TextureOpenGL(const Scene& scene);
+		void LoadTextures();
 
 		void CreateBuffers(int w, int h);
 		void CreateOpenglBuffer();
@@ -49,4 +52,6 @@ class Renderer {
 		float* z_buffer;
 		ShaderProgram colorShader;
 		ShaderProgram phongShader;
+		ShaderProgram planeShader;
+		Texture2D texture;
 };
