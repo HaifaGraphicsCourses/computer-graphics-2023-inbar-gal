@@ -28,15 +28,13 @@ void main() {
 	// diffuse
 	vec3 NewNormal = normalize(vertexNormal);
 	vec3 lightVector = normalize(lightPosition - vertexPosition);
-	//float dFactor = max(dot(NewNormal, lightVector), 0.0f);
-	float dFactor = dot(NewNormal, lightVector);
+	float dFactor = max(dot(NewNormal, lightVector), 0.0f);
 	diffuse = diffuseLightColor * dFactor * diffuseModelColor;
 
 	// specular
 	vec3 eyeVector = normalize(eyePosition - vertexPosition);
 	vec3 reflectedLightVector = reflect(-lightVector, vertexNormal);
-	//float sFactor = pow(max(dot(eyeVector, reflectedLightVector), 0.0f), shine);
-	float sFactor = pow(dot(eyeVector, reflectedLightVector), shine);
+	float sFactor = pow(max(dot(eyeVector, reflectedLightVector), 0.0f), shine);
 	specular = specularLightColor * sFactor * specularModelColor;
 	
 	if(a == true) {

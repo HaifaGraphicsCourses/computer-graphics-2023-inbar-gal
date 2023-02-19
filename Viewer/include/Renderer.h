@@ -53,5 +53,7 @@ class Renderer {
 		ShaderProgram colorShader;
 		ShaderProgram phongShader;
 		ShaderProgram planeShader;
+		ShaderProgram cylinderShader;
+		ShaderProgram sphereShader;
 		Texture2D texture;
 };
