@@ -39,6 +39,7 @@ class Renderer {
 		void PhongOpenGL(const Scene& scene);
 		void TextureOpenGL(const Scene& scene);
 		void LoadTextures();
+		void AdditionalTexture(const Scene& scene);
 
 		void CreateBuffers(int w, int h);
 		void CreateOpenglBuffer();
@@ -52,8 +53,14 @@ class Renderer {
 		float* z_buffer;
 		ShaderProgram colorShader;
 		ShaderProgram phongShader;
+
 		ShaderProgram planeShader;
 		ShaderProgram cylinderShader;
 		ShaderProgram sphereShader;
 		Texture2D texture;
+
+		ShaderProgram normalShader;
+		ShaderProgram environmentShader;
+		ShaderProgram toonShader;
+		Texture2D texture2;
 };

@@ -256,7 +256,7 @@ MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices, s
 	modelVertices.reserve(3 * faces.size());
 	for (int i = 0; i < faces.size(); i++) {
 		Face currentFace = faces.at(i);
-		for (int j = 0; j < 3; j++) {
+		/*for (int j = 0; j < 3; j++) {
 			int vertexIndex = currentFace.GetVertexIndex(j) - 1;
 
 			Vertex vertex;
@@ -269,7 +269,60 @@ MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices, s
 			}
 
 			modelVertices.push_back(vertex);
+		}*/
+
+		int i1 = currentFace.GetVertexIndex(0) - 1;
+		int i2 = currentFace.GetVertexIndex(1) - 1;
+		int i3 = currentFace.GetVertexIndex(2) - 1;
+
+		Vertex vertex1, vertex2, vertex3;
+
+		vertex1.position = vertices[i1];
+		vertex2.position = vertices[i2];
+		vertex3.position = vertices[i3];
+
+		vertex1.normal = normals[i1];
+		vertex2.normal = normals[i2];
+		vertex3.normal = normals[i3];
+
+		if (textureCoords.size() > 0) {
+			int i4 = currentFace.GetTextureIndex(0) - 1;
+			int i5 = currentFace.GetTextureIndex(1) - 1;
+			int i6 = currentFace.GetTextureIndex(2) - 1;
+
+			vertex1.texCoords = textureCoords[i4];
+			vertex2.texCoords = textureCoords[i5];
+			vertex3.texCoords = textureCoords[i6];
+
+			glm::vec3 edge1 = vertex2.position - vertex1.position;
+			glm::vec3 edge2 = vertex3.position - vertex1.position;
+			glm::vec2 deltaUV1 = vertex2.texCoords - vertex1.texCoords;
+			glm::vec2 deltaUV2 = vertex3.texCoords - vertex1.texCoords;
+
+			float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+			glm::vec3 tangent1, bitangent1;
+			
+			tangent1.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+			tangent1.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+			tangent1.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+
+			bitangent1.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+			bitangent1.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+			bitangent1.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+
+			vertex1.tangent = tangent1;
+			vertex2.tangent = tangent1;
+			vertex3.tangent = tangent1;
+
+			vertex1.bitangent = bitangent1;
+			vertex2.bitangent = bitangent1;
+			vertex3.bitangent = bitangent1;
 		}
+
+		modelVertices.push_back(vertex1);
+		modelVertices.push_back(vertex2);
+		modelVertices.push_back(vertex3);
 	}
 
 	glGenVertexArrays(1, &vao);
@@ -290,6 +343,14 @@ MeshModel::MeshModel(std::vector<Face> faces, std::vector<glm::vec3> vertices, s
 	// Vertex Texture Coords
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoords));
 	glEnableVertexAttribArray(2);
+
+	// Vertex tangent
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent));
+	glEnableVertexAttribArray(3);
+
+	// Vertex bitangent
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, bitangent));
+	glEnableVertexAttribArray(4);
 
 	// unbind to make sure other code does not change it somewhere else
 	glBindVertexArray(0);

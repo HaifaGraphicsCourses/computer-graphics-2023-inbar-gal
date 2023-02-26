@@ -27,6 +27,9 @@ Menus::Menus(ImGuiIO& io, Scene& scene) : my_io(io), my_scene(scene) {
 
 	this->show_texture_menu = false;
 	my_scene.textureMode = 0;
+
+	my_scene.toonColors = 1;
+	my_scene.toonWithTexture = false;
 }
 
 void Menus::DrawImguiMenus(glm::vec4& clear_color) {
@@ -688,12 +691,28 @@ void Menus::DrawTextureMenu() {
 	ImGui::Begin("Texture Menu");
 
 	ImGui::RadioButton("no texture", &my_scene.textureMode, 0);
+	
+	ImGui::Text("texture mapping");
+	ImGui::RadioButton("plane projection", &my_scene.textureMode, 1);
 	ImGui::SameLine();
-	ImGui::RadioButton("plane", &my_scene.textureMode, 1);
+	ImGui::RadioButton("cylinder projection", &my_scene.textureMode, 2);
 	ImGui::SameLine();
-	ImGui::RadioButton("cylinder", &my_scene.textureMode, 2);
+	ImGui::RadioButton("sphere projection", &my_scene.textureMode, 3);
+
+	ImGui::Text("");
+	ImGui::Text("additional mapping");
+	ImGui::RadioButton("normal mapping  ", &my_scene.textureMode, 4);
 	ImGui::SameLine();
-	ImGui::RadioButton("sphere", &my_scene.textureMode, 3);
+	ImGui::RadioButton("environment mapping", &my_scene.textureMode, 5);
+	ImGui::SameLine();
+	ImGui::RadioButton("toon shading", &my_scene.textureMode, 6);
+	if (my_scene.textureMode == 6) {
+		ImGui::Checkbox("with texture", &my_scene.toonWithTexture);
+		ImGui::PushItemWidth(100);
+		ImGui::SameLine();
+		ImGui::SliderInt("number of colors", &my_scene.toonColors, 1, 20);
+		ImGui::PopItemWidth();
+	}
 
 	ImGui::End();
 }

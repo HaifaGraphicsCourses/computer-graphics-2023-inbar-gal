@@ -362,7 +362,12 @@ void Renderer::Render(const Scene& scene) {
 				PhongOpenGL(scene);
 			}
 			else {
-				TextureOpenGL(scene);
+				if (scene.textureMode == 1 || scene.textureMode == 2 || scene.textureMode == 3) {
+					TextureOpenGL(scene);
+				}
+				else if (scene.textureMode == 4 || scene.textureMode == 5 || scene.textureMode == 6) {
+					AdditionalTexture(scene);
+				}
 			}			
 		}
 	}
@@ -1155,18 +1160,186 @@ void Renderer::TextureOpenGL(const Scene& scene) {
 	}
 }
 
-void Renderer::LoadTextures() {
-	// for crate
-	if (!texture.loadTexture("bin\\Debug\\brickpink.jpg", true)) {
-		texture.loadTexture("bin\\Debug\\brickpink.jpg", true);
-	}
+void Renderer::AdditionalTexture(const Scene& scene) {
+	PointLight activeLight = scene.GetActiveLight();
+	glm::mat4x4 third = scene.GetActiveCamera().GetViewTransformation();
+	glm::mat4x4 fourth = scene.GetActiveCamera().GetProjectionTransformation();
 
+	if (scene.textureMode == 4) {
+		for (int i = 0; i < scene.GetModelCount(); i++) {
+			MeshModel current = scene.GetModel(i);
+			glm::mat4 first = scene.GetModel(i).GetModelTransformation();
+			glm::mat4 second = scene.GetModel(i).GetWorldTransformation();
+
+			normalShader.loadShaders("normal1.glsl", "normal2.glsl");
+			LoadTextures();
+			normalShader.use();
+
+			normalShader.setUniform("model", first);
+			normalShader.setUniform("world", second);
+			normalShader.setUniform("view", third);
+			normalShader.setUniform("projection", fourth);
+			normalShader.setUniform("lightPos", activeLight.position);
+			normalShader.setUniform("viewPos", scene.GetActiveCamera().GetPosition());
+
+			normalShader.setUniform("ambientLightColor", activeLight.LambientLight);
+			normalShader.setUniform("diffuseLightColor", activeLight.LdiffuseLight);
+			normalShader.setUniform("specularLightColor", activeLight.LspecularLight);
+
+			normalShader.setUniform("ambientModelColor", activeLight.MambientLight);
+			normalShader.setUniform("diffuseModelColor", activeLight.MdiffuseLight);
+			normalShader.setUniform("specularModelColor", activeLight.MspecularLight);
+
+			normalShader.setUniform("diffuseMap", 0);
+			normalShader.setUniform("normalMap", 1);
+
+			normalShader.setUniform("lightPosition", activeLight.position);
+			normalShader.setUniform("eyePosition", scene.GetActiveCamera().GetPosition());
+			normalShader.setUniform("shine", activeLight.shine);
+
+			if (activeLight.lightType == 0) {
+				normalShader.setUniform("a", true);
+				normalShader.setUniform("d", false);
+				normalShader.setUniform("s", false);
+			}
+			else if (activeLight.lightType == 1) {
+				normalShader.setUniform("a", false);
+				normalShader.setUniform("d", true);
+				normalShader.setUniform("s", false);
+			}
+			else if (activeLight.lightType == 2) {
+				normalShader.setUniform("a", false);
+				normalShader.setUniform("d", false);
+				normalShader.setUniform("s", true);
+			}
+
+			texture.bind(0);
+			texture2.bind(1);
+			// Drag our model's faces (triangles) in fill mode
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			glBindVertexArray(scene.GetModel(i).vao);
+			glDrawArrays(GL_TRIANGLES, 0, scene.GetModel(i).GetModelVertices().size());
+			glBindVertexArray(0);
+			texture2.unbind(1);
+			texture.unbind(0);			
+		}
+	}
+	else if (scene.textureMode == 5) {
+		for (int i = 0; i < scene.GetModelCount(); i++) {
+			MeshModel current = scene.GetModel(i);
+			glm::mat4 first = scene.GetModel(i).GetModelTransformation();
+			glm::mat4 second = scene.GetModel(i).GetWorldTransformation();
+
+			environmentShader.loadShaders("environment1.glsl", "environment2.glsl");
+			LoadTextures();
+			environmentShader.use();
+
+			environmentShader.setUniform("model", first);
+			environmentShader.setUniform("world", second);
+			environmentShader.setUniform("view", third);
+			environmentShader.setUniform("projection", fourth);
+
+			environmentShader.setUniform("textureMap", 0);
+			environmentShader.setUniform("cameraPos", scene.GetActiveCamera().GetPosition());
+
+			texture.bind();
+			// Drag our model's faces (triangles) in fill mode
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			glBindVertexArray(scene.GetModel(i).vao);
+			glDrawArrays(GL_TRIANGLES, 0, scene.GetModel(i).GetModelVertices().size());
+			glBindVertexArray(0);
+			texture.unbind();
+		}
+	}
+	else if (scene.textureMode == 6) {
+		for (int i = 0; i < scene.GetModelCount(); i++) {
+			MeshModel current = scene.GetModel(i);
+			glm::mat4 first = scene.GetModel(i).GetModelTransformation();
+			glm::mat4 second = scene.GetModel(i).GetWorldTransformation();
+
+			toonShader.loadShaders("toon1.glsl", "toon2.glsl");
+			LoadTextures();
+			toonShader.use();
+
+			toonShader.setUniform("model", first);
+			toonShader.setUniform("world", second);
+			toonShader.setUniform("view", third);
+			toonShader.setUniform("projection", fourth);
+
+			toonShader.setUniform("ambientLightColor", activeLight.LambientLight);
+			toonShader.setUniform("diffuseLightColor", activeLight.LdiffuseLight);
+			toonShader.setUniform("specularLightColor", activeLight.LspecularLight);
+
+			toonShader.setUniform("ambientModelColor", activeLight.MambientLight);
+			toonShader.setUniform("diffuseModelColor", activeLight.MdiffuseLight);
+			toonShader.setUniform("specularModelColor", activeLight.MspecularLight);
+
+			toonShader.setUniform("textureMap", 0);
+
+			toonShader.setUniform("lightPosition", activeLight.position);
+			toonShader.setUniform("eyePosition", scene.GetActiveCamera().GetPosition());
+			toonShader.setUniform("shine", activeLight.shine);
+
+			toonShader.setUniform("withTexture", scene.toonWithTexture);
+			toonShader.setUniform("numberOfColors", scene.toonColors);
+
+			if (scene.toonWithTexture == true) {
+				texture.bind();
+				// Drag our model's faces (triangles) in fill mode
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				glBindVertexArray(scene.GetModel(i).vao);
+				glDrawArrays(GL_TRIANGLES, 0, scene.GetModel(i).GetModelVertices().size());
+				glBindVertexArray(0);
+				texture.unbind();
+			}
+			else {
+				// Drag our model's faces (triangles) in fill mode
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				glBindVertexArray(scene.GetModel(i).vao);
+				glDrawArrays(GL_TRIANGLES, 0, scene.GetModel(i).GetModelVertices().size());
+				glBindVertexArray(0);
+			}
+			
+		}
+	}
+}
+
+void Renderer::LoadTextures() {
 	// for skull
 	/*if (!texture.loadTexture("bin\\Debug\\skull.jpg", true)) {
 		texture.loadTexture("bin\\Debug\\skull.jpg", true);
 	}*/
 
+	// for bob (duck)
+	/*if (!texture.loadTexture("bin\\Debug\\bob_diffuse.png", true)) {
+		texture.loadTexture("bin\\Debug\\bob_diffuse.png", true);
+	}*/
+
+	// for blub (fish)	
+	/*if (!texture.loadTexture("bin\\Debug\\satin6.jpg", true)) {
+		texture.loadTexture("bin\\Debug\\satin6.jpg", true);
+	}*/
+
+	// for projections: spot (cow)
 	/*if (!texture.loadTexture("bin\\Debug\\cThQ3.jpg", true)) {
 		texture.loadTexture("bin\\Debug\\cThQ3.jpg", true);
-	}*/	
+	}*/
+
+	// for normal mapping:
+	/*if (!texture.loadTexture("bin\\Debug\\diamonds_synthetic.jpg", true)) {
+		texture.loadTexture("bin\\Debug\\diamonds_synthetic.jpg", true);
+	}
+	if (!texture2.loadTexture("bin\\Debug\\diamonds.png", true)) {
+		texture2.loadTexture("bin\\Debug\\diamonds.png", true);
+	}*/
+
+	// for environment mapping:
+	/*if (!texture.loadTexture("bin\\Debug\\satin6.jpg", true)) {
+		texture.loadTexture("bin\\Debug\\satin6.jpg", true);
+	}*/
+
+	// for toon shading with texture: monkey	
+	/*if (!texture.loadTexture("bin\\Debug\\monkey.png", true)) {
+		texture.loadTexture("bin\\Debug\\monkey.png", true);
+	}*/
 }

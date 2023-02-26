@@ -48,6 +48,9 @@ class Scene {
 		int GetActiveLightIndex() const;
 
 		int textureMode;
+
+		int toonColors;
+		bool toonWithTexture;
 	private:
 		vector<shared_ptr<MeshModel>> mesh_models;
 		vector<shared_ptr<Camera>> cameras;
